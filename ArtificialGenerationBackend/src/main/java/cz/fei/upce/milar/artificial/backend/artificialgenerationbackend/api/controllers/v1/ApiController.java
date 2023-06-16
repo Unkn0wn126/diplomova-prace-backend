@@ -1,7 +1,7 @@
-package cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.controllers.api.v1;
+package cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.controllers.v1;
 
-import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.dto.GeneratePositionsCommandDto;
-import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.dto.ParseFileCommandDto;
+import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.dto.GeneratePositionsCommandDto;
+import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.dto.ParseFileCommandDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;

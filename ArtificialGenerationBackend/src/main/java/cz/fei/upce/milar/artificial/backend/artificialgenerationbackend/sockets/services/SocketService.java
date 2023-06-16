@@ -1,4 +1,4 @@
-package cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.services;
+package cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.sockets.services;
 
 import com.corundumstudio.socketio.SocketIOServer;
 import org.springframework.beans.factory.annotation.Autowired;

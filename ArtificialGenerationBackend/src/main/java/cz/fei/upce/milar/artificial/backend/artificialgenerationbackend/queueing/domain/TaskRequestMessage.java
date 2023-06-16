@@ -1,6 +1,6 @@
-package cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.domain;
+package cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.queueing.domain;
 
-import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.dto.DtoAncestor;
+import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.common.dto.DtoAncestor;
 
 import java.io.Serializable;
 import java.util.UUID;

@@ -1,4 +1,4 @@
-package cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.domain;
+package cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.queueing.domain;
 
 import java.io.Serializable;
 

@@ -1,4 +1,4 @@
-package cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.config;
+package cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.sockets.config;
 
 import com.corundumstudio.socketio.SocketIOServer;
 import org.springframework.beans.factory.annotation.Value;

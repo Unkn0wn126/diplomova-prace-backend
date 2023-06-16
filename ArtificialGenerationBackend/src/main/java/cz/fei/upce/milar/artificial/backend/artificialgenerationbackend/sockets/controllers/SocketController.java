@@ -1,9 +1,9 @@
-package cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.controllers.sockets;
+package cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.sockets.controllers;
 
 import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.listener.ConnectListener;
 import com.corundumstudio.socketio.listener.DisconnectListener;
-import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.services.SocketService;
+import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.sockets.services.SocketService;
 import org.springframework.stereotype.Component;
 
 @Component
