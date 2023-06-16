@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>cz.fei.upce.milar.artificial.backend</groupId>
-	<artifactId>ArtificialGenerationBackend</artifactId>
+	<artifactId>artificial-generation-backend</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>ArtificialGenerationBackend</name>
 	<description>ArtificialGenerationBackend</description>

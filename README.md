@@ -1,6 +1,7 @@
 # Diplomova prace backend
 
-
+# Links:
+- docker-compose based on: [https://docs.docker.com/language/java/build-images/](https://docs.docker.com/language/java/build-images/)
 
 ## Getting started
 

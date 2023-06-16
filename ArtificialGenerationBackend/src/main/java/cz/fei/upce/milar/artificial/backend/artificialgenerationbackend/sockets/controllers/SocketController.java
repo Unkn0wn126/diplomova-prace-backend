@@ -31,6 +31,7 @@ public class SocketController {
     private ConnectListener onConnected() {
         return (client) -> {
             //log.info("Socket ID[{}]  Connected to socket", client.getSessionId().toString());
+            System.out.println("Connected to socket " + client.getSessionId().toString());
             client.sendEvent("after_connect", client.getSessionId().toString());
             //socketService.sendMessage("a", "after_connect", client, client.getSessionId().toString());
         };
