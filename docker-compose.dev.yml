@@ -11,8 +11,21 @@ services:
       - "8085:8085"
     environment:
       - SERVER_PORT=8080
+    depends_on:
+      - rabbitmq3
     volumes:
       - ./ArtificialGenerationBackend/:/app
+  artificial-generation-workers:
+    container_name: "artificial_generation_python"
+    build:
+      context: ./ArtificialGenerationWorkers
+    ports:
+      - 5678:5678
+    depends_on:
+      - rabbitmq3
+      - artificial-generation-backend
+    volumes:
+      - ./ArtificialGenerationWorkers/:/app
   rabbitmq3:
     # see https://www.section.io/engineering-education/dockerize-a-rabbitmq-instance/
     container_name: "artificial-generation-rabbitmq"

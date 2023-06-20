@@ -2,10 +2,16 @@
 
 FROM python:3.11.3-bullseye
 
-WORKDIR /app
-COPY requirements.txt requirements.txt
-RUN pip3 install -r requirements.txt
+RUN mkdir app
+RUN mkdir /app/src
 
-COPY ./src .
+COPY requirements.txt /app/requirements.txt
+RUN pip3 install -r /app/requirements.txt
 
-CMD ["python", "artificial_generation.py"]
+COPY ./src /app/src
+
+ENV PYTHONPATH "${PYTHONPATH}:/app/src"
+
+ENTRYPOINT ["python", "/app/src/artificial_generation.py"]
+
+#CMD ["python", "/app/src/artificial_generation.py"]
