@@ -6,4 +6,12 @@ import java.util.UUID;
 
 public class TaskCreatedResponseDto extends DtoAncestor {
     private UUID operationID;
+
+    public UUID getOperationID() {
+        return operationID;
+    }
+
+    public void setOperationID(UUID operationID) {
+        this.operationID = operationID;
+    }
 }

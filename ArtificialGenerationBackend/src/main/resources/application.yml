@@ -1,3 +1,9 @@
 socket-server:
   port: 8085
-  host: localhost
+  host: 0.0.0.0
+
+spring:
+  rabbitmq:
+    host: artificial-generation-rabbitmq
+    password: mypassword
+    username: myuser

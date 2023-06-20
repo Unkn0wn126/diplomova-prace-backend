@@ -2,6 +2,7 @@
 
 # Links:
 - docker-compose based on: [https://docs.docker.com/language/java/build-images/](https://docs.docker.com/language/java/build-images/)
+- rabbitmq docker compose part based on: [https://www.section.io/engineering-education/dockerize-a-rabbitmq-instance/](https://www.section.io/engineering-education/dockerize-a-rabbitmq-instance/)
 
 ## Getting started
 

@@ -10,4 +10,36 @@ public class TaskRequestMessage implements Serializable {
     private UUID operationID;
     private OPERATION_TYPE operationType;
     private DtoAncestor content;
+
+    public UUID getClientID() {
+        return clientID;
+    }
+
+    public void setClientID(UUID clientID) {
+        this.clientID = clientID;
+    }
+
+    public UUID getOperationID() {
+        return operationID;
+    }
+
+    public void setOperationID(UUID operationID) {
+        this.operationID = operationID;
+    }
+
+    public OPERATION_TYPE getOperationType() {
+        return operationType;
+    }
+
+    public void setOperationType(OPERATION_TYPE operationType) {
+        this.operationType = operationType;
+    }
+
+    public DtoAncestor getContent() {
+        return content;
+    }
+
+    public void setContent(DtoAncestor content) {
+        this.content = content;
+    }
 }

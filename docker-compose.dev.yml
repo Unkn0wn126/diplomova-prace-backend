@@ -1,6 +1,7 @@
 version: '3.8'
 services:
   artificial-generation-backend:
+    container_name: "artificial_generation_spring"
     build:
       context: ./ArtificialGenerationBackend
       target: development
@@ -12,3 +13,15 @@ services:
       - SERVER_PORT=8080
     volumes:
       - ./ArtificialGenerationBackend/:/app
+  rabbitmq3:
+    # see https://www.section.io/engineering-education/dockerize-a-rabbitmq-instance/
+    container_name: "artificial-generation-rabbitmq"
+    image: rabbitmq:3.8-management-alpine
+    environment:
+      - RABBITMQ_DEFAULT_USER=myuser
+      - RABBITMQ_DEFAULT_PASS=mypassword
+    ports:
+      # AMQP protocol port
+      - '5672:5672'
+      # HTTP management UI
+      - '15672:15672'

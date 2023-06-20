@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class RabbitMqConfig {
-    // TODO find the tutorial I based this on
+    // see (same up to the Binding): https://spring.io/guides/gs/messaging-rabbitmq/
     static final String topicExchangeName = "spring-boot-exchange";
 
     static final String queueName = "spring-boot";
