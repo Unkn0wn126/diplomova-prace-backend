@@ -2,7 +2,7 @@ import pika, json, sys, os
 
 # basic skeleton taken from: https://www.rabbitmq.com/tutorials/tutorial-one-python.html
 def main():
-    connection = pika.BlockingConnection(pika.ConnectionParameters('artificial-generation-rabbitmq', credentials=pika.credentials.PlainCredentials('myuser', 'mypassword')))
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host='artificial-generation-rabbitmq', credentials=pika.credentials.PlainCredentials(username='myuser', password='mypassword')))
     channel = connection.channel()
 
     channel.queue_declare(queue='spring-boot')
@@ -12,12 +12,17 @@ def main():
     channel2.queue_declare(queue='python')
 
     def callback(ch, method, properties, body):
+        print("Got message!")
         parsed = body.decode('utf8')
         loaded = json.loads(parsed)
         client_id = loaded.get('clientID')
         operation_id = loaded.get('operationID')
         operation_type = loaded.get('operationType')
         content = loaded.get('content')
+
+        channel.basic_publish(exchange='',
+                              routing_key='python',
+                              body=bytes(json.dumps({"message": "Received"}), 'UTF-8'))
 
     channel.basic_consume(queue='spring-boot',
                           auto_ack=True,
