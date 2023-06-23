@@ -20,9 +20,14 @@ def main():
         operation_type = loaded.get('operationType')
         content = loaded.get('content')
 
+
+
         channel.basic_publish(exchange='',
                               routing_key='python',
-                              body=bytes(json.dumps({"message": "Received"}), 'UTF-8'))
+                              body=bytes(json.dumps(loaded), 'UTF-8'),
+                              properties=pika.BasicProperties(
+                                  headers={'operationType': operation_type, 'operationID': operation_id}
+                              ))
 
     channel.basic_consume(queue='spring-boot',
                           auto_ack=True,

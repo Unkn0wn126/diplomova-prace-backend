@@ -21,6 +21,7 @@ services:
       context: ./ArtificialGenerationWorkers
     ports:
       - 5678:5678
+    restart: always # TODO: change it so it's not needed
     depends_on:
       - rabbitmq3
     volumes:

@@ -32,7 +32,11 @@ public class QueueSender {
         taskMessage.setOperationType(OPERATION_TYPE.GENERATE_POSITIONS);
         taskMessage.setContent(generatePositionsCommandDto);
 
-        this.template.convertAndSend(queue.getName(), taskMessage);
+        this.template.convertAndSend(queue.getName(), taskMessage, messagePostProcessor -> {
+            messagePostProcessor.getMessageProperties().setHeader("operationType", OPERATION_TYPE.GENERATE_POSITIONS);
+            messagePostProcessor.getMessageProperties().setHeader("operationID", operationID);
+            return messagePostProcessor;
+        });
     }
 
     public void sendParseFileCommand(UUID clientId, UUID operationID, ParseFileCommandDto parseFileCommandDto) {
