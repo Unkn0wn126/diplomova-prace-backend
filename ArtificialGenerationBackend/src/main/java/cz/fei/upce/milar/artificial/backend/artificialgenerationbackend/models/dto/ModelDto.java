@@ -2,27 +2,28 @@ package cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.models.
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.common.dto.DtoAncestor;
 
-public class ModelDto {
+public class ModelDto extends DtoAncestor {
     private ModelMeshDto mesh;
     private Transform3Dto position;
 
-    @JsonGetter("Mesh")
+    @JsonGetter("mesh")
     public ModelMeshDto getMesh() {
         return mesh;
     }
 
-    @JsonSetter("Mesh")
+    @JsonSetter("mesh")
     public void setMesh(ModelMeshDto mesh) {
         this.mesh = mesh;
     }
 
-    @JsonGetter("Position")
+    @JsonGetter("position")
     public Transform3Dto getPosition() {
         return position;
     }
 
-    @JsonSetter("Position")
+    @JsonSetter("position")
     public void setPosition(Transform3Dto position) {
         this.position = position;
     }

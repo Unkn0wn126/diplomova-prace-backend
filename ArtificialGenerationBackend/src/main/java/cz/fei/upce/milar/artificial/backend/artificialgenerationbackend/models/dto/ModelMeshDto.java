@@ -16,22 +16,22 @@ public class ModelMeshDto extends DtoAncestor {
         faces = new ArrayList<>();
     }
 
-    @JsonGetter("Vertices")
+    @JsonGetter("vertices")
     public List<ModelMeshVertexDto> getVertices() {
         return vertices;
     }
 
-    @JsonSetter("Vertices")
+    @JsonSetter("vertices")
     public void setVertices(List<ModelMeshVertexDto> vertices) {
         this.vertices = vertices;
     }
 
-    @JsonGetter("Faces")
+    @JsonGetter("faces")
     public List<ModelMeshFaceDto> getFaces() {
         return faces;
     }
 
-    @JsonSetter("Faces")
+    @JsonSetter("faces")
     public void setFaces(List<ModelMeshFaceDto> faces) {
         this.faces = faces;
     }

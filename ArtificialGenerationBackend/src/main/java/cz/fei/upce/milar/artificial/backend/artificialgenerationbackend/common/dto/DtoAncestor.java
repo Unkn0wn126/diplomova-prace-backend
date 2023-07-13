@@ -10,7 +10,7 @@ import java.io.Serializable;
 // Annotations from here: https://stackoverflow.com/a/65685243
 // TODO find better reference?
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonTypeInfo(use = JsonTypeInfo.Id.DEDUCTION)
+//@JsonTypeInfo(use = JsonTypeInfo.Id.DEDUCTION)
 @JsonSubTypes({
         @JsonSubTypes.Type(ParseFileCommandDto.class)
 })

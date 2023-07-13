@@ -14,12 +14,12 @@ public class ModelMeshFaceDto extends DtoAncestor {
         indices = new ArrayList<>();
     }
 
-    @JsonGetter("Indices")
+    @JsonGetter("indices")
     public List<Integer> getIndices() {
         return indices;
     }
 
-    @JsonSetter("Indices")
+    @JsonSetter("indices")
     public void setIndices(List<Integer> indices) {
         this.indices = indices;
     }

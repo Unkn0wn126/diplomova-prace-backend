@@ -4,6 +4,6 @@ socket-server:
 
 spring:
   rabbitmq:
-    host: artificial-generation-rabbitmq
+    host: localhost
     password: mypassword
     username: myuser

@@ -58,5 +58,9 @@ public class ConvertToJSONTests {
         String modelAsJSON = mapper.writeValueAsString(modelDto);
 
         System.out.println(modelAsJSON);
+
+        ModelDto modelDto1 = mapper.readValue(modelAsJSON, ModelDto.class);
+
+        System.out.println(modelDto1);
     }
 }

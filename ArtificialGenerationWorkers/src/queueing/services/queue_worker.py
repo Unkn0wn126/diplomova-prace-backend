@@ -1,10 +1,15 @@
 import pika, json, sys, os, tempfile
 import src.model_parsing.services.model_parsing_service as model_parsing
 import dataclasses
+import base64
 
 # basic skeleton taken from: https://www.rabbitmq.com/tutorials/tutorial-one-python.html
+docker_host = 'artificial-generation-rabbitmq'
+local_host = 'localhost'
+
+
 def main():
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host='artificial-generation-rabbitmq', credentials=pika.credentials.PlainCredentials(username='myuser', password='mypassword')))
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host=local_host, credentials=pika.credentials.PlainCredentials(username='myuser', password='mypassword')))
     channel = connection.channel()
 
     channel.queue_declare(queue='spring-boot')
@@ -24,20 +29,23 @@ def main():
 
         if operation_type == 'PARSE_OBJECTS':
             file_suffix = content.get('fileSuffix')
-            file_data = content.get('fileData')
+            file_data = base64.b64decode(content.get('fileData'))
 
-            f = tempfile.NamedTemporaryFile(mode='w', delete=False, suffix=file_suffix)
+            f = tempfile.NamedTemporaryFile(mode='wb', delete=False, suffix=file_suffix)
             f.write(file_data)
             f.close()
 
-            resp_data = model_parsing.import_model_from_file(f)
+            resp_data = model_parsing.import_model_from_file(f.name)
             resp_dict = dataclasses.asdict(resp_data)
+
+            resp_json = json.dumps(resp_dict)
 
             channel2.basic_publish(exchange='',
                                   routing_key='python',
-                                  body=bytes(json.dumps(resp_dict), 'UTF-8'),
+                                  body=bytes(resp_json, 'UTF-8'),
                                   properties=pika.BasicProperties(
-                                      headers={'operationType': operation_type, 'operationID': operation_id}
+                                      headers={'operationType': operation_type, 'operationID': operation_id,
+                                               'clientID': client_id}
                                   ))
 
     channel.basic_consume(queue='spring-boot',

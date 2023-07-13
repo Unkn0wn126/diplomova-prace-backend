@@ -10,42 +10,42 @@ public class Transform4Dto extends DtoAncestor {
     private float z;
     private float w;
 
-    @JsonGetter("X")
+    @JsonGetter("x")
     public float getX() {
         return x;
     }
 
-    @JsonSetter("X")
+    @JsonSetter("x")
     public void setX(float x) {
         this.x = x;
     }
 
-    @JsonGetter("Y")
+    @JsonGetter("y")
     public float getY() {
         return y;
     }
 
-    @JsonSetter("Y")
+    @JsonSetter("y")
     public void setY(float y) {
         this.y = y;
     }
 
-    @JsonGetter("Z")
+    @JsonGetter("z")
     public float getZ() {
         return z;
     }
 
-    @JsonSetter("Z")
+    @JsonSetter("z")
     public void setZ(float z) {
         this.z = z;
     }
 
-    @JsonGetter("W")
+    @JsonGetter("w")
     public float getW() {
         return w;
     }
 
-    @JsonSetter("W")
+    @JsonSetter("w")
     public void setW(float w) {
         this.w = w;
     }

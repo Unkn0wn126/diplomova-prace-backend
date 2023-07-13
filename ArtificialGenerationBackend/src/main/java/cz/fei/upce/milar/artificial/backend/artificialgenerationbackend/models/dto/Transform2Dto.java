@@ -8,22 +8,22 @@ public class Transform2Dto extends DtoAncestor {
     private float x;
     private float y;
 
-    @JsonGetter("X")
+    @JsonGetter("x")
     public float getX() {
         return x;
     }
 
-    @JsonSetter("X")
+    @JsonSetter("x")
     public void setX(float x) {
         this.x = x;
     }
 
-    @JsonGetter("Y")
+    @JsonGetter("y")
     public float getY() {
         return y;
     }
 
-    @JsonSetter("Y")
+    @JsonSetter("y")
     public void setY(float y) {
         this.y = y;
     }

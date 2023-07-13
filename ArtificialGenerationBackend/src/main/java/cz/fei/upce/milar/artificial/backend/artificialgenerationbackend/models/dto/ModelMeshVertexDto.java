@@ -10,42 +10,42 @@ public class ModelMeshVertexDto extends DtoAncestor {
     private Transform2Dto texcoords;
     private Transform3Dto tangent;
 
-    @JsonGetter("Position")
+    @JsonGetter("position")
     public Transform3Dto getPosition() {
         return position;
     }
 
-    @JsonSetter("Position")
+    @JsonSetter("position")
     public void setPosition(Transform3Dto position) {
         this.position = position;
     }
 
-    @JsonGetter("Normal")
+    @JsonGetter("normal")
     public Transform3Dto getNormal() {
         return normal;
     }
 
-    @JsonSetter("Normal")
+    @JsonSetter("normal")
     public void setNormal(Transform3Dto normal) {
         this.normal = normal;
     }
 
-    @JsonGetter("Texcoords")
+    @JsonGetter("texcoords")
     public Transform2Dto getTexcoords() {
         return texcoords;
     }
 
-    @JsonSetter("Texcoords")
+    @JsonSetter("texcoords")
     public void setTexcoords(Transform2Dto texcoords) {
         this.texcoords = texcoords;
     }
 
-    @JsonGetter("Tangent")
+    @JsonGetter("tangent")
     public Transform3Dto getTangent() {
         return tangent;
     }
 
-    @JsonSetter("Tangent")
+    @JsonSetter("tangent")
     public void setTangent(Transform3Dto tangent) {
         this.tangent = tangent;
     }
