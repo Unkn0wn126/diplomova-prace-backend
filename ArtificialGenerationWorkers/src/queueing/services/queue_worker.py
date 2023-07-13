@@ -1,4 +1,6 @@
-import pika, json, sys, os
+import pika, json, sys, os, tempfile
+import src.model_parsing.services.model_parsing_service as model_parsing
+import dataclasses
 
 # basic skeleton taken from: https://www.rabbitmq.com/tutorials/tutorial-one-python.html
 def main():
@@ -20,14 +22,23 @@ def main():
         operation_type = loaded.get('operationType')
         content = loaded.get('content')
 
+        if operation_type == 'PARSE_OBJECTS':
+            file_suffix = content.get('fileSuffix')
+            file_data = content.get('fileData')
 
+            f = tempfile.NamedTemporaryFile(mode='w', delete=False, suffix=file_suffix)
+            f.write(file_data)
+            f.close()
 
-        channel.basic_publish(exchange='',
-                              routing_key='python',
-                              body=bytes(json.dumps(loaded), 'UTF-8'),
-                              properties=pika.BasicProperties(
-                                  headers={'operationType': operation_type, 'operationID': operation_id}
-                              ))
+            resp_data = model_parsing.import_model_from_file(f)
+            resp_dict = dataclasses.asdict(resp_data)
+
+            channel2.basic_publish(exchange='',
+                                  routing_key='python',
+                                  body=bytes(json.dumps(resp_dict), 'UTF-8'),
+                                  properties=pika.BasicProperties(
+                                      headers={'operationType': operation_type, 'operationID': operation_id}
+                                  ))
 
     channel.basic_consume(queue='spring-boot',
                           auto_ack=True,

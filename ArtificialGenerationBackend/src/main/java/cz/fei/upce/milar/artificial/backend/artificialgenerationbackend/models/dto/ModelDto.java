@@ -2,7 +2,6 @@ package cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.models.
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.common.dto.DtoAncestor;
 
 public class ModelDto {
     private ModelMeshDto mesh;

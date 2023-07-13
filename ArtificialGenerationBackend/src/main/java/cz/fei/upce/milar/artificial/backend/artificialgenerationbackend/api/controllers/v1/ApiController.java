@@ -18,11 +18,11 @@ public class ApiController {
     @Autowired
     private QueueSender sender;
 
-    @PostMapping("/api/v1/parseFile/{id}")
+    @PostMapping("/api/v1/parseModel/{id}")
     public ResponseEntity<TaskCreatedResponseDto> parseFile(@PathVariable UUID id, @RequestBody ParseFileCommandDto parseFileCommandDto) {
         UUID uuid = UUID.randomUUID();
 //        socketService.sendMessage(id, "Request to parse file received, queueing as task with id " + uuid);
-        //sender.sendParseFileCommand(id, uuid, parseFileCommandDto);
+        sender.sendParseFileCommand(id, uuid, parseFileCommandDto);
 
         TaskCreatedResponseDto responseDto = new TaskCreatedResponseDto();
         responseDto.setOperationID(uuid);
