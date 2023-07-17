@@ -5,6 +5,7 @@ import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.dto.
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.dto.TaskCreatedResponseDto;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.services.TempFileService;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.queueing.services.QueueSender;
+import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.sockets.services.SocketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
@@ -28,23 +29,14 @@ public class ApiController {
     @Autowired
     private TempFileService tempFileService;
 
-    @PostMapping("/api/v1/parseModel/{id}")
-    public ResponseEntity<TaskCreatedResponseDto> parseFile(@PathVariable UUID id, @RequestBody ParseFileCommandDto parseFileCommandDto) {
-        UUID uuid = UUID.randomUUID();
-//        socketService.sendMessage(id, "Request to parse file received, queueing as task with id " + uuid);
-        sender.sendParseFileCommand(id, uuid, parseFileCommandDto);
-
-        TaskCreatedResponseDto responseDto = new TaskCreatedResponseDto();
-        responseDto.setOperationID(uuid);
-
-        return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
-    }
+    @Autowired
+    private SocketService socketService;
 
     @PostMapping("/api/v1/parseModelFromFile/{id}")
     public ResponseEntity<TaskCreatedResponseDto> parseModelFromFile(@PathVariable UUID id, @RequestParam("file")MultipartFile file) {
         UUID uuid = UUID.randomUUID();
-//        socketService.sendMessage(id, "Request to parse file received, queueing as task with id " + uuid);
-        //sender.sendParseFileCommand(id, uuid, parseFileCommandDto);
+        socketService.sendLogToClient(id, "Request to parse file received, queueing as task with id " + uuid);
+
         try {
             String name = file.getName();
             String contentType = file.getContentType();

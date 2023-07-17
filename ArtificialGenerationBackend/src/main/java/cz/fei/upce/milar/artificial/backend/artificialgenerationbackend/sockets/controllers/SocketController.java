@@ -4,6 +4,7 @@ import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.listener.ConnectListener;
 import com.corundumstudio.socketio.listener.DisconnectListener;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.sockets.services.SocketService;
+import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.sockets.util.SocketEventTypes;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -17,23 +18,11 @@ public class SocketController {
         this.socketService = socketService;
         server.addConnectListener(onConnected());
         server.addDisconnectListener(onDisconnected());
-        //server.addEventListener("send_message", Message.class, onChatReceived());
     }
-
-//    private DataListener<Message> onChatReceived() {
-//        return (senderClient, data, ackSender) -> {
-//            log.info(data.toString());
-//            senderClient.getNamespace().getBroadcastOperations().sendEvent("get_message", data.getMessage());
-//
-//        };
-//    }
 
     private ConnectListener onConnected() {
         return (client) -> {
-            //log.info("Socket ID[{}]  Connected to socket", client.getSessionId().toString());
-            System.out.println("Connected to socket " + client.getSessionId().toString());
-            client.sendEvent("after_connect", client.getSessionId().toString());
-            //socketService.sendMessage("a", "after_connect", client, client.getSessionId().toString());
+            client.sendEvent(SocketEventTypes.AFTER_CONNECT.getValue(), client.getSessionId().toString());
         };
 
     }

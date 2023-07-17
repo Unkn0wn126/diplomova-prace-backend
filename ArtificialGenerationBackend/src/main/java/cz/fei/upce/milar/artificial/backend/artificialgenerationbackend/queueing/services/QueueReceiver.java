@@ -7,6 +7,7 @@ import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.serv
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.models.dto.ModelDto;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.queueing.domain.OPERATION_TYPE;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.queueing.domain.TaskRequestMessage;
+import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.sockets.util.SocketEventTypes;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.BeansException;
@@ -37,11 +38,15 @@ public class QueueReceiver implements ApplicationContextAware {
             OPERATION_TYPE operationType = OPERATION_TYPE.valueOf(message.getMessageProperties().getHeader("operationType"));
             UUID operationID = UUID.fromString(message.getMessageProperties().getHeader("operationID"));
             UUID clilentID = UUID.fromString(message.getMessageProperties().getHeader("clientID"));
+
+            SocketIOClient client = server.getClient(clilentID);
+
+            client.sendEvent(SocketEventTypes.BACKEND_LOG.getValue(), "Received parsed model, processing...");
+
             System.out.println(operationType);
             System.out.println(operationID);
             byte[] body = message.getBody();
             String result = new String(body, StandardCharsets.UTF_8);
-            System.out.println(" [x] Received '" + result + "'");
 
             ObjectMapper mapper = new ObjectMapper();
             if (operationType == OPERATION_TYPE.PARSE_OBJECTS) {
@@ -57,8 +62,7 @@ public class QueueReceiver implements ApplicationContextAware {
                 }*/
             }
 
-            SocketIOClient client = server.getClient(clilentID);
-            client.sendEvent("process_finished", operationID);
+            client.sendEvent(SocketEventTypes.PROCESS_FINISHED.getValue(), operationID);
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
