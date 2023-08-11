@@ -4,6 +4,8 @@ import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.dto.
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.dto.ParseFileCommandDto;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.dto.TaskCreatedResponseDto;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.services.TempFileService;
+import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.common.domain.ClientInfo;
+import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.common.services.ActiveClientsService;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.queueing.services.QueueSender;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.sockets.services.SocketService;
 import org.apache.commons.io.FilenameUtils;
@@ -21,6 +23,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
 
+@RequestMapping("/api/v1/")
 @RestController
 public class ApiController {
 
@@ -33,10 +36,23 @@ public class ApiController {
     @Autowired
     private SocketService socketService;
 
-    @PostMapping("/api/v1/parseModelFromFile/{id}")
-    public ResponseEntity<TaskCreatedResponseDto> parseModelFromFile(@PathVariable UUID id, @RequestParam("file")MultipartFile file) {
+    @Autowired
+    private ActiveClientsService activeClientsService;
+
+    @GetMapping("hello")
+    public ResponseEntity<String> hello() {
+        return new ResponseEntity<>("World", HttpStatus.OK);
+    }
+
+    @PostMapping("parseModelFromFile")
+    public ResponseEntity<TaskCreatedResponseDto> parseModelFromFile(@RequestHeader("client-id") UUID id,
+                                                                     @RequestParam("file")MultipartFile file) {
+        ClientInfo client = activeClientsService.getClient(id);
         UUID uuid = UUID.randomUUID();
-        socketService.sendLogToClient(id, "Request to parse file received, queueing as task with id " + uuid);
+        client.addOperationToClient(uuid);
+
+        socketService.sendLogToClient(client.getSocketID(),
+                "Request to parse file received, queueing as task with id " + uuid);
 
         try {
             String originalFilename = file.getOriginalFilename();
@@ -59,7 +75,7 @@ public class ApiController {
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 
-    @GetMapping("/api/v1/getParsedModel/{id}")
+    @GetMapping("getParsedModel/{id}")
     public ResponseEntity<InputStreamResource> getParsedModel(@PathVariable UUID id, @RequestParam UUID operationId) throws FileNotFoundException {
         List<Path> tempFile = tempFileService.getTempFiles(operationId);
 
@@ -70,7 +86,7 @@ public class ApiController {
         return  new ResponseEntity<>(inputStreamResource, HttpStatus.OK);
     }
 
-    @PostMapping("/api/v1/generatePositions/{id}")
+    @PostMapping("generatePositions/{id}")
     public ResponseEntity<TaskCreatedResponseDto> generatePositions(@PathVariable UUID id, @RequestBody GeneratePositionsCommandDto generatePositionsCommandDto) {
         UUID uuid = UUID.randomUUID();
 //        socketService.sendMessage(id, "Request to generate positions received, queueing as task with id " + uuid);
