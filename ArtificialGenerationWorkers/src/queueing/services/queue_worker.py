@@ -48,6 +48,20 @@ def main():
                                                'clientID': client_id}
                                   ))
 
+        elif operation_type == 'GENERATE_POSITIONS':
+            resp_json = "test"
+            model_dict = content.get('model')
+            scene_definition_dict = content.get('sceneDefinition')
+            grab_points_dict = content.get('grabPoints')
+
+            channel2.basic_publish(exchange='',
+                                  routing_key='python',
+                                  body=bytes(resp_json, 'UTF-8'),
+                                  properties=pika.BasicProperties(
+                                      headers={'operationType': operation_type, 'operationID': operation_id,
+                                               'clientID': client_id}
+                                  ))
+
     channel.basic_consume(queue='spring-boot',
                           auto_ack=True,
                           on_message_callback=callback)

@@ -1,6 +1,6 @@
 package cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.controllers.v1;
 
-import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.dto.GeneratePositionsCommandDto;
+import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.dto.GenerateScenesCommandDto;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.dto.TaskCreatedResponseDto;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.services.ActiveEndpointsService;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.services.TempFileService;
@@ -43,7 +43,7 @@ public class ScenesController {
 
     @PostMapping("${scenes-controller.start-operation.path}")
     public ResponseEntity<TaskCreatedResponseDto> generatePositions(@RequestHeader("client-id") UUID id,
-                                                @RequestBody GeneratePositionsCommandDto generatePositionsCommandDto) {
+                                                @RequestBody GenerateScenesCommandDto generatePositionsCommandDto) {
         ClientInfo client = activeClientsService.getClient(id);
         UUID uuid = UUID.randomUUID();
 

@@ -1,6 +1,6 @@
 package cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.queueing.services;
 
-import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.dto.GeneratePositionsCommandDto;
+import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.dto.GenerateScenesCommandDto;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.dto.ParseFileCommandDto;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.queueing.domain.OPERATION_TYPE;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.queueing.domain.TaskRequestMessage;
@@ -25,7 +25,7 @@ public class QueueSender {
     @Autowired
     private Queue queue;
 
-    public void sendGeneratePositionsCommand(UUID clientId, UUID operationID, GeneratePositionsCommandDto generatePositionsCommandDto) {
+    public void sendGeneratePositionsCommand(UUID clientId, UUID operationID, GenerateScenesCommandDto generatePositionsCommandDto) {
         TaskRequestMessage taskMessage = new TaskRequestMessage();
         taskMessage.setClientID(clientId);
         taskMessage.setOperationID(operationID);
