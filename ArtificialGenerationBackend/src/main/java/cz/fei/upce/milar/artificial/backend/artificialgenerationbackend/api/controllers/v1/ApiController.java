@@ -6,6 +6,7 @@ import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.dto.
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.services.TempFileService;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.queueing.services.QueueSender;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.sockets.services.SocketService;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
@@ -38,23 +39,19 @@ public class ApiController {
         socketService.sendLogToClient(id, "Request to parse file received, queueing as task with id " + uuid);
 
         try {
-            String name = file.getName();
-            String contentType = file.getContentType();
             String originalFilename = file.getOriginalFilename();
-            byte[] bytes = file.getBytes();
+            String extension = FilenameUtils.getExtension(originalFilename);
 
-            System.out.println(name);
-            System.out.println(contentType);
-            System.out.println(originalFilename);
-            System.out.println(bytes.length);
+            byte[] fileData = file.getBytes();
+
 
             ParseFileCommandDto parseFileCommandDto = new ParseFileCommandDto();
-            parseFileCommandDto.setFileData(bytes);
-            parseFileCommandDto.setFileSuffix("." + contentType.split("/")[1]);
+            parseFileCommandDto.setFileData(fileData);
+            parseFileCommandDto.setFileSuffix("." + extension);
 
             sender.sendParseFileCommand(id, uuid, parseFileCommandDto);
         } catch (Exception e) {
-            System.out.println(e);
+            System.out.println(e.getMessage());
         }
 
         TaskCreatedResponseDto responseDto = new TaskCreatedResponseDto();
