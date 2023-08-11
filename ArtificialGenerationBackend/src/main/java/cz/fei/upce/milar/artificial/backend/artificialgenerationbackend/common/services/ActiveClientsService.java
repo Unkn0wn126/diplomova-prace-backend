@@ -6,9 +6,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.Path;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class ActiveClientsService {
@@ -16,7 +17,7 @@ public class ActiveClientsService {
     private Map<UUID, ClientInfo> activeClients;
 
     public ActiveClientsService() {
-        activeClients = new HashMap<>();
+        activeClients = new ConcurrentHashMap<>();
     }
 
     public void registerClient(UUID clientID) {
@@ -69,5 +70,13 @@ public class ActiveClientsService {
         }
 
         activeClients.get(clientID).addResultFilePathToOperation(operationID, path);
+    }
+
+    public List<Path> getOperationPaths(UUID clientID, UUID operationID) {
+        if (!activeClients.containsKey(clientID)) {
+            throw new RuntimeException("No such client");
+        }
+
+        return activeClients.get(clientID).getResultFilePathsOfOperation(operationID);
     }
 }

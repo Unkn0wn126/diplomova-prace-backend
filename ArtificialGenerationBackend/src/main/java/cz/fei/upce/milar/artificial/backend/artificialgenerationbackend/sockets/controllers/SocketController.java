@@ -3,29 +3,34 @@ package cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.sockets
 import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.listener.ConnectListener;
 import com.corundumstudio.socketio.listener.DisconnectListener;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.services.ActiveEndpointsService;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.common.domain.ClientInfo;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.common.services.ActiveClientsService;
+import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.sockets.dto.AfterConnectResponseDto;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.sockets.services.SocketService;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.sockets.util.SocketEventTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.util.UUID;
-
 @Component
 public class SocketController {
     private static final Logger logger = LoggerFactory.getLogger(SocketController.class);
     /// based on: https://medium.com/folksdev/spring-boot-netty-socket-io-example-3f21fcc1147d
-    private final SocketIOServer server;
-    private final SocketService socketService;
     private final ActiveClientsService activeClientsService;
 
+    private final ActiveEndpointsService activeEndpointsService;
+    private final SocketIOServer server;
+    private final SocketService socketService;
+
     public SocketController(SocketIOServer server, SocketService socketService,
-                            ActiveClientsService activeClientsService) {
+                            ActiveClientsService activeClientsService, ActiveEndpointsService activeEndpointsService) {
         this.server = server;
         this.socketService = socketService;
         this.activeClientsService = activeClientsService;
+        this.activeEndpointsService = activeEndpointsService;
         server.addConnectListener(onConnected());
         server.addDisconnectListener(onDisconnected());
     }
@@ -34,11 +39,21 @@ public class SocketController {
         return (client) -> {
             logger.info("Connected");
             activeClientsService.registerClient(client.getSessionId());
-            client.sendEvent(SocketEventTypes.AFTER_CONNECT.getValue(), client.getSessionId().toString());
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                String onConnectedResponse = mapper.writeValueAsString(
+                        new AfterConnectResponseDto(client.getSessionId().toString(),
+                                activeEndpointsService.getApiPort(),
+                                activeEndpointsService.composeParseModelPath(),
+                                activeEndpointsService.composeGenerateScenesPath()));
 
-            logger.info("Client socket id " + client.getSessionId());
+                client.sendEvent(SocketEventTypes.AFTER_CONNECT.getValue(), onConnectedResponse);
+
+                logger.info("Client socket id " + client.getSessionId());
+            } catch (JsonProcessingException e) {
+                logger.error(e.getMessage());
+            }
         };
-
     }
 
     private DisconnectListener onDisconnected() {

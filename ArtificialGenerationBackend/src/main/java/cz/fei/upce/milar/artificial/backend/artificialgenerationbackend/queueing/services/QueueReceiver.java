@@ -3,6 +3,7 @@ package cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.queuein
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.services.ActiveEndpointsService;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.services.TempFileService;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.models.dto.ModelDto;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.queueing.domain.OPERATION_TYPE;
@@ -30,6 +31,9 @@ public class QueueReceiver implements ApplicationContextAware {
     @Autowired
     private TempFileService tempFileService;
 
+    @Autowired
+    private ActiveEndpointsService activeEndpointsService;
+
     private ApplicationContext applicationContext;
 
     @RabbitListener(queues = "python")
@@ -54,15 +58,11 @@ public class QueueReceiver implements ApplicationContextAware {
 
                 System.out.println(modelDto);
                 // save it to file somewhere
-                tempFileService.saveModelToTempFile(operationID, modelDto);
-                /*try(ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                    ObjectOutputStream oos = new ObjectOutputStream(bos)) {
-                    oos.writeObject(modelDto);
-                    tempFileService.saveTempFile(operationID, bos.toByteArray());
-                }*/
+                tempFileService.saveModelToTempFile(clilentID, operationID, modelDto);
             }
 
-            client.sendEvent(SocketEventTypes.PROCESS_FINISHED.getValue(), operationID);
+            client.sendEvent(SocketEventTypes.PROCESS_FINISHED.getValue(),
+                    activeEndpointsService.composeModelResultPath() + "/" + operationID);
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }

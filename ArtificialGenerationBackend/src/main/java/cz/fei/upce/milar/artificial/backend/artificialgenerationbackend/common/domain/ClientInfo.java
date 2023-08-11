@@ -1,18 +1,18 @@
 package cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.common.domain;
 
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ClientInfo {
-    private UUID socketID;
-    private Map<UUID, OperationInfo> operationsMap;
+    private final UUID socketID;
+    private final Map<UUID, OperationInfo> operationsMap;
 
     public ClientInfo(UUID socketID) {
         this.socketID = socketID;
-        operationsMap = new HashMap<>();
+        operationsMap = new ConcurrentHashMap<>();
     }
 
     public UUID getSocketID() {

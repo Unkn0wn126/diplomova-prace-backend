@@ -1,6 +1,26 @@
+api:
+  base-path: /api/v1
+
+models-controller:
+  base-path: models
+  start-operation:
+    path: parseModelFromFile
+  get-value:
+    path: getParsedModel
+
+scenes-controller:
+  base-path: scenes
+  start-operation:
+    path: generateScenes
+  get-value:
+    path: getGeneratedScene
+
 socket-server:
   port: 8085
   host: 0.0.0.0
+
+server:
+  port: 8080
 
 spring:
   servlet:

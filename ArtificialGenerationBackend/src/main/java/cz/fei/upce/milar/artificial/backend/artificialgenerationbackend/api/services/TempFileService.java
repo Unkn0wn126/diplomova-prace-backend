@@ -1,7 +1,10 @@
 package cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.common.services.ActiveClientsService;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.models.dto.ModelDto;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -11,10 +14,15 @@ import java.util.*;
 
 @Service
 public class TempFileService {
+    private static final Logger logger = LoggerFactory.getLogger(TempFileService.class);
+
+    private final ActiveClientsService activeClientsService;
     private Map<UUID, List<Path>> filesMap;
     private String tempDirName = "tempfiles";
 
-    public TempFileService() {
+    public TempFileService(ActiveClientsService activeClientsService) {
+        this.activeClientsService = activeClientsService;
+
         try {
             Files.createTempDirectory(tempDirName);
         } catch (IOException e) {
@@ -23,42 +31,23 @@ public class TempFileService {
         filesMap = new HashMap<>();
     }
 
-    public void saveTempFile(UUID key, byte[] data) throws IOException {
-        Path tempFile = Files.createTempFile(tempDirName, ".tmp");
-        try (FileOutputStream fs = new FileOutputStream(tempFile.toFile())) {
-            fs.write(data);
-        }
-
-        System.out.println(tempFile.getFileName());
-
-        if (!filesMap.containsKey(key)) {
-            filesMap.put(key, new ArrayList<>());
-        }
-
-        filesMap.get(key).add(tempFile);
-    }
-
-    public void saveModelToTempFile(UUID key, ModelDto modelDto) throws IOException {
+    public void saveModelToTempFile(UUID clientID, UUID operationID, ModelDto modelDto) throws IOException {
         Path tempFile = Files.createTempFile(tempDirName, ".tmp");
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile.toFile()))) {
             ObjectMapper mapper = new ObjectMapper();
             writer.write(mapper.writeValueAsString(modelDto));
         }
 
-        System.out.println(tempFile.getFileName());
+        logger.info("Created file " + tempFile.getFileName());
 
-        if (!filesMap.containsKey(key)) {
-            filesMap.put(key, new ArrayList<>());
-        }
-
-        filesMap.get(key).add(tempFile);
+        activeClientsService.addResultPathToOperation(clientID, operationID, tempFile);
     }
 
-    public List<Path> getTempFiles(UUID key) {
-        if (!filesMap.containsKey(key)) {
-            return new ArrayList<>(); // TODO exception
-        }
+    public List<Path> getTempFiles(UUID clientID, UUID operationID) {
+        return activeClientsService.getOperationPaths(clientID, operationID);
+    }
 
-        return filesMap.get(key);
+    public Path getFirstTempFile(UUID clientID, UUID operationID) {
+        return activeClientsService.getOperationPaths(clientID, operationID).stream().findFirst().orElse(null);
     }
 }

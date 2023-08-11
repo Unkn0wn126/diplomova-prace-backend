@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.UUID;
 
 public class OperationInfo {
-    private UUID operationID;
-    private List<Path> resultPaths;
+    private final UUID operationID;
+    private final List<Path> resultPaths;
 
     public OperationInfo(UUID operationID) {
         this.operationID = operationID;

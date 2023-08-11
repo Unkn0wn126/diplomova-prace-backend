@@ -1,14 +1,16 @@
 package cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.controllers.v1;
 
-import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.dto.GeneratePositionsCommandDto;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.dto.ParseFileCommandDto;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.dto.TaskCreatedResponseDto;
+import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.services.ActiveEndpointsService;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.services.TempFileService;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.common.domain.ClientInfo;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.common.services.ActiveClientsService;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.queueing.services.QueueSender;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.sockets.services.SocketService;
 import org.apache.commons.io.FilenameUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
@@ -17,15 +19,14 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.nio.file.Path;
-import java.util.List;
 import java.util.UUID;
 
-@RequestMapping("/api/v1/")
+@RequestMapping("${api.base-path}/${models-controller.base-path}/")
 @RestController
-public class ApiController {
+public class ModelsController {
+    private static final Logger logger = LoggerFactory.getLogger(ModelsController.class);
 
     @Autowired
     private QueueSender sender;
@@ -39,22 +40,20 @@ public class ApiController {
     @Autowired
     private ActiveClientsService activeClientsService;
 
-    @GetMapping("hello")
-    public ResponseEntity<String> hello() {
-        return new ResponseEntity<>("World", HttpStatus.OK);
-    }
+    @Autowired
+    private ActiveEndpointsService activeEndpointsService;
 
-    @PostMapping("parseModelFromFile")
+    @PostMapping("${models-controller.start-operation.path}")
     public ResponseEntity<TaskCreatedResponseDto> parseModelFromFile(@RequestHeader("client-id") UUID id,
-                                                                     @RequestParam("file")MultipartFile file) {
+                                                                     @RequestParam("file") MultipartFile file) {
         ClientInfo client = activeClientsService.getClient(id);
         UUID uuid = UUID.randomUUID();
-        client.addOperationToClient(uuid);
-
-        socketService.sendLogToClient(client.getSocketID(),
-                "Request to parse file received, queueing as task with id " + uuid);
 
         try {
+            client.addOperationToClient(uuid);
+            socketService.sendLogToClient(client.getSocketID(),
+                    "Request to parse file received, queueing as task with id " + uuid);
+
             String originalFilename = file.getOriginalFilename();
             String extension = FilenameUtils.getExtension(originalFilename);
 
@@ -65,36 +64,36 @@ public class ApiController {
             parseFileCommandDto.setFileSuffix("." + extension);
 
             sender.sendParseFileCommand(id, uuid, parseFileCommandDto);
+
+            TaskCreatedResponseDto responseDto = new TaskCreatedResponseDto(uuid);
+
+            return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            logger.error(e.getMessage());
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-        TaskCreatedResponseDto responseDto = new TaskCreatedResponseDto();
-        responseDto.setOperationID(uuid);
-
-        return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 
-    @GetMapping("getParsedModel/{id}")
-    public ResponseEntity<InputStreamResource> getParsedModel(@PathVariable UUID id, @RequestParam UUID operationId) throws FileNotFoundException {
-        List<Path> tempFile = tempFileService.getTempFiles(operationId);
+    @GetMapping("${models-controller.get-value.path}/{operationId}")
+    public ResponseEntity<InputStreamResource> getParsedModel(@RequestHeader("client-id") UUID id,
+                                                              @PathVariable UUID operationId) {
+        try {
+            logger.info("Fetching");
+            Path tempFile = tempFileService.getFirstTempFile(id, operationId);
 
-        InputStream stream = new FileInputStream(tempFile.get(0).toFile());
+            if (tempFile == null) {
+                return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            }
 
-        InputStreamResource inputStreamResource = new InputStreamResource(stream);
+            InputStream stream = new FileInputStream(tempFile.toFile());
 
-        return  new ResponseEntity<>(inputStreamResource, HttpStatus.OK);
-    }
+            InputStreamResource inputStreamResource = new InputStreamResource(stream);
 
-    @PostMapping("generatePositions/{id}")
-    public ResponseEntity<TaskCreatedResponseDto> generatePositions(@PathVariable UUID id, @RequestBody GeneratePositionsCommandDto generatePositionsCommandDto) {
-        UUID uuid = UUID.randomUUID();
-//        socketService.sendMessage(id, "Request to generate positions received, queueing as task with id " + uuid);
-        sender.sendGeneratePositionsCommand(id, uuid, generatePositionsCommandDto);
+            return  new ResponseEntity<>(inputStreamResource, HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error(e.getMessage());
 
-        TaskCreatedResponseDto responseDto = new TaskCreatedResponseDto();
-        responseDto.setOperationID(uuid);
-
-        return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
     }
 }
