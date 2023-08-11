@@ -44,7 +44,6 @@ public class ApiController {
 
             byte[] fileData = file.getBytes();
 
-
             ParseFileCommandDto parseFileCommandDto = new ParseFileCommandDto();
             parseFileCommandDto.setFileData(fileData);
             parseFileCommandDto.setFileSuffix("." + extension);
