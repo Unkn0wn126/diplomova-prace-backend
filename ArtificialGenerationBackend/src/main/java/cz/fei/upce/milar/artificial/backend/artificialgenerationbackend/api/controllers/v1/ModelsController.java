@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.UUID;
@@ -45,55 +47,47 @@ public class ModelsController {
 
     @PostMapping("${models-controller.start-operation.path}")
     public ResponseEntity<TaskCreatedResponseDto> parseModelFromFile(@RequestHeader("client-id") UUID id,
-                                                                     @RequestParam("file") MultipartFile file) {
+                                                                     @RequestParam("file") MultipartFile file)
+            throws IOException {
         ClientInfo client = activeClientsService.getClient(id);
         UUID uuid = UUID.randomUUID();
 
-        try {
-            client.addOperationToClient(uuid);
-            socketService.sendLogToClient(client.getSocketID(),
-                    "Request to parse file received, queueing as task with id " + uuid);
+        client.addOperationToClient(uuid);
+        socketService.sendLogToClient(client.getSocketID(),
+                "Request to parse file received, queueing as task with id " + uuid);
 
-            String originalFilename = file.getOriginalFilename();
-            String extension = FilenameUtils.getExtension(originalFilename);
+        logger.info("Request to parse file received, queueing as task with id {}", uuid);
 
-            byte[] fileData = file.getBytes();
+        String originalFilename = file.getOriginalFilename();
+        String extension = FilenameUtils.getExtension(originalFilename);
 
-            ParseFileCommandDto parseFileCommandDto = new ParseFileCommandDto();
-            parseFileCommandDto.setFileData(fileData);
-            parseFileCommandDto.setFileSuffix("." + extension);
+        byte[] fileData = file.getBytes();
 
-            sender.sendParseFileCommand(id, uuid, parseFileCommandDto);
+        ParseFileCommandDto parseFileCommandDto = new ParseFileCommandDto(fileData, "." + extension);
 
-            TaskCreatedResponseDto responseDto = new TaskCreatedResponseDto(uuid);
+        sender.sendParseFileCommand(id, uuid, parseFileCommandDto);
 
-            return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        TaskCreatedResponseDto responseDto = new TaskCreatedResponseDto(uuid);
+
+        return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 
     @GetMapping("${models-controller.get-value.path}/{operationId}")
     public ResponseEntity<InputStreamResource> getParsedModel(@RequestHeader("client-id") UUID id,
-                                                              @PathVariable UUID operationId) {
-        try {
-            logger.info("Fetching");
-            Path tempFile = tempFileService.getFirstTempFile(id, operationId);
+                                                              @PathVariable UUID operationId)
+            throws FileNotFoundException {
+        logger.info("Fetching result of model parsing for operation with id {}", operationId);
 
-            if (tempFile == null) {
-                return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-            }
+        Path tempFile = tempFileService.getFirstTempFile(id, operationId);
 
-            InputStream stream = new FileInputStream(tempFile.toFile());
-
-            InputStreamResource inputStreamResource = new InputStreamResource(stream);
-
-            return  new ResponseEntity<>(inputStreamResource, HttpStatus.OK);
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-
+        if (tempFile == null) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
+
+        InputStream stream = new FileInputStream(tempFile.toFile());
+
+        InputStreamResource inputStreamResource = new InputStreamResource(stream);
+
+        return  new ResponseEntity<>(inputStreamResource, HttpStatus.OK);
     }
 }

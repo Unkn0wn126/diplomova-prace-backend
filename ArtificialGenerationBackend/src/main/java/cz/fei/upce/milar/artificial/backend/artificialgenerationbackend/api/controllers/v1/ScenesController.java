@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.UUID;
@@ -47,43 +48,34 @@ public class ScenesController {
         ClientInfo client = activeClientsService.getClient(id);
         UUID uuid = UUID.randomUUID();
 
-        try {
-            client.addOperationToClient(uuid);
+        client.addOperationToClient(uuid);
 
-            socketService.sendLogToClient(client.getSocketID(),
-                    "Request to generate scenes received, queueing as task with id " + uuid);
+        socketService.sendLogToClient(client.getSocketID(),
+                "Request to generate scenes received, queueing as task with id " + uuid);
 
-            sender.sendGenerateScenesCommand(id, uuid, generatePositionsCommandDto);
+        sender.sendGenerateScenesCommand(id, uuid, generatePositionsCommandDto);
 
-            TaskCreatedResponseDto responseDto = new TaskCreatedResponseDto(uuid);
+        TaskCreatedResponseDto responseDto = new TaskCreatedResponseDto(uuid);
 
-            return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 
     @GetMapping("${scenes-controller.get-value.path}/{operationId}")
     public ResponseEntity<InputStreamResource> getParsedModel(@RequestHeader("client-id") UUID id,
-                                                              @PathVariable UUID operationId) {
-        try {
-            // TODO
-            Path tempFile = tempFileService.getFirstTempFile(id, operationId);
+                                                              @PathVariable UUID operationId)
+            throws FileNotFoundException {
+        logger.info("Fetching result of scene generation for operation with id {}", operationId);
+        // TODO
+        Path tempFile = tempFileService.getFirstTempFile(id, operationId);
 
-            if (tempFile == null) {
-                return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-            }
-
-            InputStream stream = new FileInputStream(tempFile.toFile());
-
-            InputStreamResource inputStreamResource = new InputStreamResource(stream);
-
-            return  new ResponseEntity<>(inputStreamResource, HttpStatus.OK);
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-
+        if (tempFile == null) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
+
+        InputStream stream = new FileInputStream(tempFile.toFile());
+
+        InputStreamResource inputStreamResource = new InputStreamResource(stream);
+
+        return  new ResponseEntity<>(inputStreamResource, HttpStatus.OK);
     }
 }
