@@ -37,6 +37,7 @@ def launch_model_parsing(config: RabbitConfig, request_queue: str, response_queu
         loaded = json.loads(parsed)
         client_id = loaded.get('clientID')
         operation_id = loaded.get('operationID')
+        operation_index = loaded.get('operationIndex')
         operation_type = loaded.get('operationType')
         content = loaded.get('content')
 
@@ -52,7 +53,8 @@ def launch_model_parsing(config: RabbitConfig, request_queue: str, response_queu
                 model_data = model_parsing.import_model_from_file(f.name)
                 model_dict = dataclasses.asdict(model_data)
 
-                resp_json = json.dumps({"message": "Model parsed successfully", "content": model_dict})
+                resp_json = json.dumps({"message": "Model parsed successfully", "content": model_dict,
+                                        "index": operation_index})
 
                 channel2.basic_publish(exchange='',
                                        routing_key=response_queue,
@@ -64,7 +66,7 @@ def launch_model_parsing(config: RabbitConfig, request_queue: str, response_queu
             else:
                 raise AttributeError("Wrong operation type")
         except Exception as e:
-            model_data = {"message": str(e), "content": None}
+            model_data = {"message": str(e), "content": None, "index": operation_index}
             channel2.basic_publish(exchange='',
                                    routing_key=response_queue,
                                    body=bytes(json.dumps(model_data), 'UTF-8'),
@@ -102,6 +104,7 @@ def launch_scene_generation(config: RabbitConfig, request_queue: str, response_q
         loaded = json.loads(parsed)
         client_id = loaded.get('clientID')
         operation_id = loaded.get('operationID')
+        operation_index = loaded.get('operationIndex')
         operation_type = loaded.get('operationType')
         content = loaded.get('content')
 
@@ -111,7 +114,8 @@ def launch_scene_generation(config: RabbitConfig, request_queue: str, response_q
 
                 result_dict = dataclasses.asdict(result)
 
-                resp_json = json.dumps({"message": "Scene generated successfully", "content": result_dict})
+                resp_json = json.dumps({"message": "Scene generated successfully", "content": result_dict,
+                                        "index": operation_index})
 
                 channel2.basic_publish(exchange='',
                                        routing_key=response_queue,
@@ -123,7 +127,7 @@ def launch_scene_generation(config: RabbitConfig, request_queue: str, response_q
             else:
                 raise AttributeError("Wrong operation type")
         except Exception as e:
-            model_data = {"message": str(e), "content": None}
+            model_data = {"message": str(e), "content": None, "index": operation_index}
             channel2.basic_publish(exchange='',
                                    routing_key=response_queue,
                                    body=bytes(json.dumps(model_data), 'UTF-8'),
