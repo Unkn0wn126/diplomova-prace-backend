@@ -6,6 +6,7 @@ import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -16,6 +17,9 @@ public class RabbitMqConfig {
 
     static final String queueName = "spring-boot";
     static final String responseQueueName = "python";
+
+    @Value("${spring.rabbitmq.host}")
+    private String rabbitHost;
 
     @Bean
     Queue queue2() {
@@ -34,6 +38,7 @@ public class RabbitMqConfig {
 
     @Bean
     Binding binding(Queue queue, TopicExchange exchange) {
+        System.out.println(rabbitHost);
         return BindingBuilder.bind(queue).to(exchange).with("foo.bar.#");
     }
 

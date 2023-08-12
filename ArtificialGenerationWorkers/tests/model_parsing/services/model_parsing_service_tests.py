@@ -1,7 +1,7 @@
 import json
 import unittest
-import src.model_parsing.domain.models_data as models
-import src.model_parsing.services.model_parsing_service as model_parsing
+import src.models.domain as models
+import src.models.parsing as model_parsing
 import dataclasses as dc
 
 class ParseModelFromFile(unittest.TestCase):

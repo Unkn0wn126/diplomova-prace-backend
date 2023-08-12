@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from src.model_parsing.domain.models_data import Transform3, Transform4
+from src.models.domain import Transform3, Transform4
 
 
 @dataclass

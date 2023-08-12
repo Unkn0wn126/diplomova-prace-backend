@@ -17,7 +17,7 @@ scenes-controller:
 
 socket-server:
   port: 8085
-  host: 0.0.0.0
+  host: localhost
 
 server:
   port: 8080
@@ -29,5 +29,6 @@ spring:
       max-request-size: 500MB
   rabbitmq:
     host: localhost
+    port: 5672
     password: mypassword
     username: myuser

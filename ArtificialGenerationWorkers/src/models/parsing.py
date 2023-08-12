@@ -1,5 +1,5 @@
 import assimp_py
-import src.model_parsing.domain.models_data as models
+import src.models.domain as models
 
 # TODO change naming scheme to something more appropriate for Python
 

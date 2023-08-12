@@ -1,5 +1,5 @@
 import pika, json, sys, os, tempfile
-import src.model_parsing.services.model_parsing_service as model_parsing
+import src.models.parsing as model_parsing
 import dataclasses
 import base64
 

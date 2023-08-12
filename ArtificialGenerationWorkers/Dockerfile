@@ -10,7 +10,7 @@ RUN pip3 install -r /app/requirements.txt
 
 COPY ./src /app/src
 
-ENV PYTHONPATH "${PYTHONPATH}:/app/src"
+ENV PYTHONPATH "${PYTHONPATH}:/app"
 
 ENTRYPOINT ["python", "/app/src/artificial_generation.py"]
 
