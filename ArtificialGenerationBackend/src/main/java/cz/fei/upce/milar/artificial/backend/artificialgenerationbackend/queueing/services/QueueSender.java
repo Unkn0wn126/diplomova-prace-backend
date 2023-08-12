@@ -43,6 +43,7 @@ public class QueueSender {
             GenerateScenesTaskRequestMessage taskMessage = new GenerateScenesTaskRequestMessage();
             taskMessage.setClientID(clientId);
             taskMessage.setOperationID(operationID);
+            taskMessage.setOperationIndex(i);
             taskMessage.setOperationType(OPERATION_TYPE.GENERATE_SCENES);
             taskMessage.setContent(SingleSceneCommandDtoFactory
                     .createFromGenerateScenesCommandDto(generateScenesCommandDto, i));
@@ -68,6 +69,7 @@ public class QueueSender {
         ParseModelTaskRequestMessage taskMessage = new ParseModelTaskRequestMessage();
         taskMessage.setClientID(clientId);
         taskMessage.setOperationID(operationID);
+        taskMessage.setOperationIndex(0);
         taskMessage.setOperationType(OPERATION_TYPE.PARSE_OBJECTS);
         taskMessage.setContent(parseFileCommandDto);
 

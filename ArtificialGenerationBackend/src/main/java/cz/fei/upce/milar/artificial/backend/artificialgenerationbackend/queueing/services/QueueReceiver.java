@@ -61,10 +61,11 @@ public class QueueReceiver implements ApplicationContextAware {
             }
 
             tempFileService.saveModelToTempFile(receivedMessageHelper.CLIENT_ID,
-                    receivedMessageHelper.OPERATION_ID, taskResponseMessage.getContent());
+                    receivedMessageHelper.OPERATION_ID, taskResponseMessage);
 
             client.sendEvent(SocketEventTypes.PROCESS_FINISHED.getValue(),
-                    activeEndpointsService.composeModelResultPath() + "/" + receivedMessageHelper.OPERATION_ID);
+                    activeEndpointsService.composeModelResultPath() + "/" + receivedMessageHelper.OPERATION_ID +
+                            "?index=" + taskResponseMessage.getOperationIndex());
         } catch (Exception e) {
             logger.error(e.getMessage());
             // TODO inform client
@@ -94,10 +95,11 @@ public class QueueReceiver implements ApplicationContextAware {
             }
 
             tempFileService.saveSceneToTempFile(receivedMessageHelper.CLIENT_ID,
-                    receivedMessageHelper.OPERATION_ID, taskResponseMessage.getContent());
+                    receivedMessageHelper.OPERATION_ID, taskResponseMessage);
 
             client.sendEvent(SocketEventTypes.PROCESS_FINISHED.getValue(),
-                    activeEndpointsService.composeSceneResultPath() + "/" + receivedMessageHelper.OPERATION_ID);
+                    activeEndpointsService.composeSceneResultPath() + "/" + receivedMessageHelper.OPERATION_ID +
+                    "?index=" + taskResponseMessage.getOperationIndex());
         } catch (Exception e) {
             logger.error(e.getMessage());
             // TODO inform client

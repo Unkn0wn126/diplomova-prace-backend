@@ -52,7 +52,7 @@ public class ModelsController {
         ClientInfo client = activeClientsService.getClient(id);
         UUID uuid = UUID.randomUUID();
 
-        client.addOperationToClient(uuid);
+        client.addOperationToClient(uuid, 1);
         socketService.sendLogToClient(client.getSocketID(),
                 "Request to parse file received, queueing as task with id " + uuid);
 
@@ -74,11 +74,12 @@ public class ModelsController {
 
     @GetMapping("${models-controller.get-value.path}/{operationId}")
     public ResponseEntity<InputStreamResource> getParsedModel(@RequestHeader("client-id") UUID id,
-                                                              @PathVariable UUID operationId)
+                                                              @PathVariable UUID operationId,
+                                                              @RequestParam("index") int operationIndex)
             throws FileNotFoundException {
         logger.info("Fetching result of model parsing for operation with id {}", operationId);
 
-        Path tempFile = tempFileService.getFirstTempFile(id, operationId);
+        Path tempFile = tempFileService.getOperationPathAtIndex(id, operationId, operationIndex);
 
         if (tempFile == null) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);

@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.Path;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -48,12 +47,12 @@ public class ActiveClientsService {
         return activeClients.remove(clientID);
     }
 
-    public void registerClientOperation(UUID clientID, UUID operationID) {
+    public void registerClientOperation(UUID clientID, UUID operationID, int resultsSize) {
         if (!activeClients.containsKey(clientID)) {
             throw new RuntimeException("No such client");
         }
 
-        activeClients.get(clientID).addOperationToClient(operationID);
+        activeClients.get(clientID).addOperationToClient(operationID, resultsSize);
     }
 
     public void removeClientOperation(UUID clientID, UUID operationID) {
@@ -64,15 +63,15 @@ public class ActiveClientsService {
         activeClients.get(clientID).removeOperationFromClient(operationID);
     }
 
-    public void addResultPathToOperation(UUID clientID, UUID operationID, Path path) {
+    public void addResultPathToOperation(UUID clientID, UUID operationID, Path path, int index) {
         if (!activeClients.containsKey(clientID)) {
             throw new RuntimeException("No such client");
         }
 
-        activeClients.get(clientID).addResultFilePathToOperation(operationID, path);
+        activeClients.get(clientID).addResultFilePathToOperation(operationID, path, index);
     }
 
-    public List<Path> getOperationPaths(UUID clientID, UUID operationID) {
+    public Path[] getOperationPaths(UUID clientID, UUID operationID) {
         if (!activeClients.containsKey(clientID)) {
             throw new RuntimeException("No such client");
         }
@@ -80,11 +79,13 @@ public class ActiveClientsService {
         return activeClients.get(clientID).getResultFilePathsOfOperation(operationID);
     }
 
-    public Path removeFirstOperationPath(UUID clientID, UUID operationID) {
-        if (!activeClients.containsKey(clientID)) {
-            throw new RuntimeException("No such client");
+    public Path getOperationPathAtIndex(UUID clientID, UUID operationID, int index) {
+        Path[] operationPaths = getOperationPaths(clientID, operationID);
+
+        if (index > operationPaths.length || index < 0) {
+            throw new IllegalArgumentException("Invalid index");
         }
 
-        return activeClients.get(clientID).removeFirstResultPathFromOperation(operationID);
+        return operationPaths[index];
     }
 }

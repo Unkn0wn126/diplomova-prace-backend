@@ -48,7 +48,7 @@ public class ScenesController {
         ClientInfo client = activeClientsService.getClient(id);
         UUID uuid = UUID.randomUUID();
 
-        client.addOperationToClient(uuid);
+        client.addOperationToClient(uuid, generatePositionsCommandDto.getSceneDefinition().getNumberOfScenes());
 
         socketService.sendLogToClient(client.getSocketID(),
                 "Request to generate scenes received, queueing as task with id " + uuid);
@@ -62,11 +62,12 @@ public class ScenesController {
 
     @GetMapping("${scenes-controller.get-value.path}/{operationId}")
     public ResponseEntity<InputStreamResource> getParsedModel(@RequestHeader("client-id") UUID id,
-                                                              @PathVariable UUID operationId)
+                                                              @PathVariable UUID operationId,
+                                                              @RequestParam("index") int operationIndex)
             throws FileNotFoundException {
         logger.info("Fetching result of scene generation for operation with id {}", operationId);
         // TODO
-        Path tempFile = tempFileService.getFirstTempFile(id, operationId);
+        Path tempFile = tempFileService.getOperationPathAtIndex(id, operationId, operationIndex);
 
         if (tempFile == null) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);

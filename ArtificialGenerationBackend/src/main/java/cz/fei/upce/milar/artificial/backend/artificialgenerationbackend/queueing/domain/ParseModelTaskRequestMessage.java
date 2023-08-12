@@ -8,6 +8,7 @@ import java.util.UUID;
 public class ParseModelTaskRequestMessage implements Serializable {
     private UUID clientID;
     private UUID operationID;
+    private int operationIndex;
     private OPERATION_TYPE operationType;
     private ParseFileCommandDto content;
 
@@ -25,6 +26,14 @@ public class ParseModelTaskRequestMessage implements Serializable {
 
     public void setOperationID(UUID operationID) {
         this.operationID = operationID;
+    }
+
+    public int getOperationIndex() {
+        return operationIndex;
+    }
+
+    public void setOperationIndex(int operationIndex) {
+        this.operationIndex = operationIndex;
     }
 
     public OPERATION_TYPE getOperationType() {

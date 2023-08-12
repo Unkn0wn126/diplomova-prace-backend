@@ -7,18 +7,18 @@ import java.util.UUID;
 
 public class OperationInfo {
     private final UUID operationID;
-    private final List<Path> resultPaths;
+    private final Path[] resultPaths;
 
-    public OperationInfo(UUID operationID) {
+    public OperationInfo(UUID operationID, int resultsSize) {
         this.operationID = operationID;
-        resultPaths = new ArrayList<>();
+        resultPaths = new Path[resultsSize];
     }
 
     public UUID getOperationID() {
         return operationID;
     }
 
-    public List<Path> getResultPaths() {
+    public Path[] getResultPaths() {
         return resultPaths;
     }
 }

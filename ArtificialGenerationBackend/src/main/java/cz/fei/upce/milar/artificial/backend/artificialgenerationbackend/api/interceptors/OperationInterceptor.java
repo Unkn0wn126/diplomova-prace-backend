@@ -30,13 +30,13 @@ public class OperationInterceptor implements HandlerInterceptor {
         UUID clientID = UUID.fromString(clientIDAsString);
         UUID operationID = UUID.fromString(operationIDAsString);
 
-        try {
+        /*try {
             if(!tempFileService.removeFirstTempFile(clientID, operationID)) {
                 throw new RuntimeException("File was not deleted");
             }
         } catch (Exception ex) {
             logger.error(ex.getMessage());
-        }
+        }*/
         // HandlerInterceptor.super.postHandle(request, response, handler, modelAndView);
     }
 

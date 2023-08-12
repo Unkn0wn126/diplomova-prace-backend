@@ -19,49 +19,45 @@ public class ClientInfo {
         return socketID;
     }
 
-    public void addOperationToClient(UUID operationID) {
+    public void addOperationToClient(UUID operationID, int resultsSize) {
         if (operationsMap.containsKey(operationID)) {
             throw new RuntimeException("Operation already registered for client");
         }
 
-        operationsMap.put(operationID, new OperationInfo(operationID));
+        if (resultsSize < 1) {
+            throw new IllegalArgumentException("Must expect at least one result");
+        }
+
+        operationsMap.put(operationID, new OperationInfo(operationID, resultsSize));
     }
 
-    public void removeOperationFromClient(UUID operationID) {
+    public OperationInfo removeOperationFromClient(UUID operationID) {
         if (!operationsMap.containsKey(operationID)) {
             throw new RuntimeException("No such operation for client");
         }
 
-        operationsMap.remove(operationID);
+        return operationsMap.remove(operationID);
     }
 
-    public void addResultFilePathToOperation(UUID operationID, Path path) {
+    public void addResultFilePathToOperation(UUID operationID, Path path, int index) {
         if (!operationsMap.containsKey(operationID)) {
             throw new RuntimeException("No such operation for client");
         }
 
-        operationsMap.get(operationID).getResultPaths().add(path);
+        Path[] resultPaths = operationsMap.get(operationID).getResultPaths();
+
+        if (index > resultPaths.length || index < 0) {
+            throw new IllegalArgumentException("Invalid index");
+        }
+
+        resultPaths[index] = path;
     }
 
-    public List<Path> getResultFilePathsOfOperation(UUID operationID) {
+    public Path[] getResultFilePathsOfOperation(UUID operationID) {
         if (!operationsMap.containsKey(operationID)) {
             throw new RuntimeException("No such operation for client");
         }
 
         return operationsMap.get(operationID).getResultPaths();
-    }
-
-    public Path removeFirstResultPathFromOperation(UUID operationID) {
-        if (!operationsMap.containsKey(operationID)) {
-            throw new RuntimeException("No such operation for client");
-        }
-
-        List<Path> resultPaths = operationsMap.get(operationID).getResultPaths();
-
-        if (resultPaths.isEmpty()) {
-            throw new RuntimeException("List is empty");
-        }
-
-        return resultPaths.remove(0);
     }
 }

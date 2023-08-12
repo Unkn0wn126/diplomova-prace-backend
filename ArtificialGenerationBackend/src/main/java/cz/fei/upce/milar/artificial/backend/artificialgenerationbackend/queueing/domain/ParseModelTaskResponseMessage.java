@@ -8,6 +8,8 @@ public class ParseModelTaskResponseMessage {
     private String message;
     private ModelDto content;
 
+    private int operationIndex;
+
     @JsonGetter("message")
     public String getMessage() {
         return message;
@@ -26,5 +28,15 @@ public class ParseModelTaskResponseMessage {
     @JsonSetter("content")
     public void setContent(ModelDto content) {
         this.content = content;
+    }
+
+    @JsonGetter("index")
+    public int getOperationIndex() {
+        return operationIndex;
+    }
+
+    @JsonSetter("index")
+    public void setOperationIndex(int operationIndex) {
+        this.operationIndex = operationIndex;
     }
 }

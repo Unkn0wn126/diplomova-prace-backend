@@ -7,6 +7,7 @@ import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.scenes.d
 public class GenerateScenesTaskResponseMessage {
     private String message;
     private SceneDataDto content;
+    private int operationIndex;
 
     @JsonGetter("message")
     public String getMessage() {
@@ -26,5 +27,15 @@ public class GenerateScenesTaskResponseMessage {
     @JsonSetter("content")
     public void setContent(SceneDataDto content) {
         this.content = content;
+    }
+
+    @JsonGetter("index")
+    public int getOperationIndex() {
+        return operationIndex;
+    }
+
+    @JsonSetter("index")
+    public void setOperationIndex(int operationIndex) {
+        this.operationIndex = operationIndex;
     }
 }
