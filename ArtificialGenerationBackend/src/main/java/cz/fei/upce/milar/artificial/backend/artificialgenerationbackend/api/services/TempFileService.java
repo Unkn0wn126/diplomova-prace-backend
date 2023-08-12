@@ -17,15 +17,15 @@ import java.util.*;
 public class TempFileService {
     private static final Logger logger = LoggerFactory.getLogger(TempFileService.class);
 
+    private final String TEMP_DIR_NAME = "tempfiles";
     private final ActiveClientsService activeClientsService;
     private Map<UUID, List<Path>> filesMap;
-    private String tempDirName = "tempfiles";
 
     public TempFileService(ActiveClientsService activeClientsService) {
         this.activeClientsService = activeClientsService;
 
         try {
-            Files.createTempDirectory(tempDirName);
+            Files.createTempDirectory(TEMP_DIR_NAME);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -33,7 +33,8 @@ public class TempFileService {
     }
 
     public void saveModelToTempFile(UUID clientID, UUID operationID, ModelDto modelDto) throws IOException {
-        Path tempFile = Files.createTempFile(tempDirName, ".tmp");
+        Path tempFile = Files.createTempFile(TEMP_DIR_NAME, ".tmp");
+        tempFile.toFile().deleteOnExit();
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile.toFile()))) {
             ObjectMapper mapper = new ObjectMapper();
             writer.write(mapper.writeValueAsString(modelDto));
@@ -45,7 +46,8 @@ public class TempFileService {
     }
 
     public void saveSceneToTempFile(UUID clientID, UUID operationID, SceneDataDto sceneDataDto) throws IOException {
-        Path tempFile = Files.createTempFile(tempDirName, ".tmp");
+        Path tempFile = Files.createTempFile(TEMP_DIR_NAME, ".tmp");
+        tempFile.toFile().deleteOnExit();
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile.toFile()))) {
             ObjectMapper mapper = new ObjectMapper();
             writer.write(mapper.writeValueAsString(sceneDataDto));
@@ -62,5 +64,12 @@ public class TempFileService {
 
     public Path getFirstTempFile(UUID clientID, UUID operationID) {
         return activeClientsService.getOperationPaths(clientID, operationID).stream().findFirst().orElse(null);
+    }
+
+    public boolean removeFirstTempFile(UUID clientID, UUID operationID) {
+        Path path = activeClientsService.removeFirstOperationPath(clientID, operationID);
+        File file = path.toFile();
+
+        return file.delete();
     }
 }

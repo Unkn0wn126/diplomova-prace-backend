@@ -79,4 +79,12 @@ public class ActiveClientsService {
 
         return activeClients.get(clientID).getResultFilePathsOfOperation(operationID);
     }
+
+    public Path removeFirstOperationPath(UUID clientID, UUID operationID) {
+        if (!activeClients.containsKey(clientID)) {
+            throw new RuntimeException("No such client");
+        }
+
+        return activeClients.get(clientID).removeFirstResultPathFromOperation(operationID);
+    }
 }

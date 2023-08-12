@@ -1,0 +1,11 @@
+{
+    "sceneNamePrefix": "Scéna",
+    "width": 20,
+    "height": 20,
+    "numberOfVerticalLayers": 1,
+    "numberOfObjects": 10,
+    "sceneNumber": 1,
+    "useSimulation": false,
+    "generationAlgorithm": 0,
+    "aspectRatio": 0
+}

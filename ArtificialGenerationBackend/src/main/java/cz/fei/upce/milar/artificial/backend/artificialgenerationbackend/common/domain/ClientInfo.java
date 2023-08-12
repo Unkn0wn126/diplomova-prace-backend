@@ -50,4 +50,18 @@ public class ClientInfo {
 
         return operationsMap.get(operationID).getResultPaths();
     }
+
+    public Path removeFirstResultPathFromOperation(UUID operationID) {
+        if (!operationsMap.containsKey(operationID)) {
+            throw new RuntimeException("No such operation for client");
+        }
+
+        List<Path> resultPaths = operationsMap.get(operationID).getResultPaths();
+
+        if (resultPaths.isEmpty()) {
+            throw new RuntimeException("List is empty");
+        }
+
+        return resultPaths.remove(0);
+    }
 }

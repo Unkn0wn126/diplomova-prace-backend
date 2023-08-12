@@ -19,7 +19,9 @@ def import_model_from_file(file_name: str) -> models.Model:
 
         meshes.append(model_mesh)
 
-    return models.Model(mesh=meshes[0], position=models.Transform3(x=0, y=0, z=0))
+    return models.Model(mesh=meshes[0], position=models.Transform3(x=0, y=0, z=0),
+                        rotation=models.Transform4(x=0, y=0, z=0, w=1),
+                        scale=models.Transform3(x=1, y=1, z=1))
 
 
 def create_model_mesh(mesh) -> models.ModelMesh:
