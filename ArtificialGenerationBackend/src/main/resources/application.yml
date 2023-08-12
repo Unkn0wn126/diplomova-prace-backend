@@ -1,6 +1,36 @@
+api:
+  base-path: /api/v1
+
+models-controller:
+  base-path: models
+  start-operation:
+    path: parseModelFromFile
+  get-value:
+    path: getParsedModel
+
+scenes-controller:
+  base-path: scenes
+  start-operation:
+    path: generateScenes
+  get-value:
+    path: getGeneratedScene
+
 socket-server:
   port: 8085
   host: 0.0.0.0
+
+server:
+  port: 8080
+
+queues:
+  exchange: artificial-generation-exchange
+  model-parsing:
+    request: modelParsingRequest
+    response: modelParsingResponse
+  scene-generation:
+    request: sceneGenerationRequest
+    response: sceneGenerationResponse
+
 
 spring:
   servlet:
@@ -9,5 +39,6 @@ spring:
       max-request-size: 500MB
   rabbitmq:
     host: localhost
+    port: 5672
     password: mypassword
     username: myuser

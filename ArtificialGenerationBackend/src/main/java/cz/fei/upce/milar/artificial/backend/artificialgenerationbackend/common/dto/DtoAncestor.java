@@ -2,7 +2,6 @@ package cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.common.
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.dto.ParseFileCommandDto;
 
 import java.io.Serializable;

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.common.dto.DtoAncestor;
 
-public class ModelMeshVertexDto extends DtoAncestor {
+public class ModelMeshVertexDto {
     private Transform3Dto position;
     private Transform3Dto normal;
     private Transform2Dto texcoords;

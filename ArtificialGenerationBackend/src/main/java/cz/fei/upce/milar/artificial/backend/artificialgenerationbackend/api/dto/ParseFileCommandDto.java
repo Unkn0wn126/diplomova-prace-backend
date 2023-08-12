@@ -5,14 +5,19 @@ import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.common.d
 import java.util.Base64;
 
 public class ParseFileCommandDto extends DtoAncestor {
-    private String fileSuffix;
     private String fileData;
+    private String fileSuffix;
 
-    public String getFileSuffix() {
-        return fileSuffix;
+    public ParseFileCommandDto() {
     }
 
-    public void setFileSuffix(String fileSuffix) {
+    public ParseFileCommandDto(String fileData, String fileSuffix) {
+        this.fileData = fileData;
+        this.fileSuffix = fileSuffix;
+    }
+
+    public ParseFileCommandDto(byte[] fileData, String fileSuffix) {
+        this.fileData = Base64.getEncoder().encodeToString(fileData);
         this.fileSuffix = fileSuffix;
     }
 
@@ -27,5 +32,13 @@ public class ParseFileCommandDto extends DtoAncestor {
     public void setFileData(byte[] fileData) {
         String fileDataAsBase64 = Base64.getEncoder().encodeToString(fileData);
         this.fileData = fileDataAsBase64;
+    }
+
+    public String getFileSuffix() {
+        return fileSuffix;
+    }
+
+    public void setFileSuffix(String fileSuffix) {
+        this.fileSuffix = fileSuffix;
     }
 }

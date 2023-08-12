@@ -11,6 +11,17 @@ services:
       - "8085:8085"
     environment:
       - SERVER_PORT=8080
+      - SOCKET-SERVER_PORT=8085
+      - SOCKET-SERVER_HOST=0.0.0.0
+      - SPRING_RABBITMQ_HOST=artificial-generation-rabbitmq
+      - SPRING_RABBITMQ_PORT=5672
+      - SPRING_RABBITMQ_PASSWORD=mypassword
+      - SPRING_RABBITMQ_USERNAME=myuser
+      - QUEUES_MODEL-PARSING_REQUEST=modelParsingRequest
+      - QUEUES_MODEL-PARSING_RESPONSE=modelParsingResponse
+      - QUEUES_SCENE-GENERATION_REQUEST=sceneGenerationRequest
+      - QUEUES_SCENE-GENERATION_RESPONSE=sceneGenerationResponse
+      - QUEUES_EXCHANGE=artificial-generation-exchange
     depends_on:
       - rabbitmq3
     volumes:
@@ -21,6 +32,19 @@ services:
       context: ./ArtificialGenerationWorkers
     ports:
       - 5678:5678
+    environment:
+      - RABBIT_HOST=artificial-generation-rabbitmq
+      - RABBIT_PORT=5672
+      - RABBIT_USERNAME=myuser
+      - RABBIT_PASSWORD=mypassword
+      - SCENE_GENERATION_WORKERS_COUNT=16
+      - MODEL_PARSING_WORKERS_COUNT=1
+      - MODEL_PARSING_MIN_WORKERS_COUNT=1
+      - QUEUES_MODEL-PARSING_REQUEST=modelParsingRequest
+      - QUEUES_MODEL-PARSING_RESPONSE=modelParsingResponse
+      - QUEUES_SCENE-GENERATION_REQUEST=sceneGenerationRequest
+      - QUEUES_SCENE-GENERATION_RESPONSE=sceneGenerationResponse
+      - QUEUES_EXCHANGE=artificial-generation-exchange
     restart: always # TODO: change it so it's not needed
     depends_on:
       - rabbitmq3
