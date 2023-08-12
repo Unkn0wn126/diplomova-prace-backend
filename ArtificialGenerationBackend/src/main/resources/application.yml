@@ -17,10 +17,20 @@ scenes-controller:
 
 socket-server:
   port: 8085
-  host: localhost
+  host: 0.0.0.0
 
 server:
   port: 8080
+
+queues:
+  exchange: artificial-generation-exchange
+  model-parsing:
+    request: modelParsingRequest
+    response: modelParsingResponse
+  scene-generation:
+    request: sceneGenerationRequest
+    response: sceneGenerationResponse
+
 
 spring:
   servlet:

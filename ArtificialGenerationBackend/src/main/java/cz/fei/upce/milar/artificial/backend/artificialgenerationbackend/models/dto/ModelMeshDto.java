@@ -7,7 +7,7 @@ import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.common.d
 import java.util.ArrayList;
 import java.util.List;
 
-public class ModelMeshDto extends DtoAncestor {
+public class ModelMeshDto {
     private List<ModelMeshVertexDto> vertices;
     private List<ModelMeshFaceDto> faces;
 

@@ -3,6 +3,7 @@ package cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.ser
 import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.common.services.ActiveClientsService;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.models.dto.ModelDto;
+import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.scenes.dto.SceneDataDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -36,6 +37,18 @@ public class TempFileService {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile.toFile()))) {
             ObjectMapper mapper = new ObjectMapper();
             writer.write(mapper.writeValueAsString(modelDto));
+        }
+
+        logger.info("Created file " + tempFile.getFileName());
+
+        activeClientsService.addResultPathToOperation(clientID, operationID, tempFile);
+    }
+
+    public void saveSceneToTempFile(UUID clientID, UUID operationID, SceneDataDto sceneDataDto) throws IOException {
+        Path tempFile = Files.createTempFile(tempDirName, ".tmp");
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile.toFile()))) {
+            ObjectMapper mapper = new ObjectMapper();
+            writer.write(mapper.writeValueAsString(sceneDataDto));
         }
 
         logger.info("Created file " + tempFile.getFileName());

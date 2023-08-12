@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.common.dto.DtoAncestor;
 
-public class Transform3Dto extends DtoAncestor {
+public class Transform3Dto {
     private float x;
     private float y;
     private float z;

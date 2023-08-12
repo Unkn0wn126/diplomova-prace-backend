@@ -7,3 +7,4 @@ class RabbitConfig:
     port: int
     user_name: str
     password: str
+    exchange: str

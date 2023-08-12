@@ -6,6 +6,7 @@ import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,22 +14,40 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitMqConfig {
     // see (same up to the Binding): https://spring.io/guides/gs/messaging-rabbitmq/
-    static final String topicExchangeName = "spring-boot-exchange";
+    @Value("${queues.exchange}")
+    private String topicExchangeName;
+    @Value("${queues.model-parsing.request}")
+    private String modelParsingRequestQueueName;
+    @Value("${queues.model-parsing.response}")
+    private String modelParsingResponseQueueName;
 
-    static final String queueName = "spring-boot";
-    static final String responseQueueName = "python";
+    @Value("${queues.scene-generation.request}")
+    private String sceneGenerationRequestQueueName;
+    @Value("${queues.scene-generation.response}")
+    private String sceneGenerationResponseQueueName;
 
     @Value("${spring.rabbitmq.host}")
     private String rabbitHost;
 
     @Bean
-    Queue queue2() {
-        return new Queue(responseQueueName, false);
+    Queue modelParsingRequestQueue() {
+        System.out.println(rabbitHost);
+        return new Queue(modelParsingRequestQueueName, false);
     }
 
     @Bean
-    Queue queue() {
-        return new Queue(queueName, false);
+    Queue modelParsingResponseQueue() {
+        return new Queue(modelParsingResponseQueueName, false);
+    }
+
+    @Bean
+    Queue sceneGenerationRequestQueue() {
+        return new Queue(sceneGenerationRequestQueueName, false);
+    }
+
+    @Bean
+    Queue sceneGenerationResponseQueue() {
+        return new Queue(sceneGenerationResponseQueueName, false);
     }
 
     @Bean
@@ -37,9 +56,13 @@ public class RabbitMqConfig {
     }
 
     @Bean
-    Binding binding(Queue queue, TopicExchange exchange) {
-        System.out.println(rabbitHost);
-        return BindingBuilder.bind(queue).to(exchange).with("foo.bar.#");
+    Binding binding(@Qualifier("modelParsingRequestQueue") Queue queue, TopicExchange exchange) {
+        return BindingBuilder.bind(queue).to(exchange).with(queue.getName());
+    }
+
+    @Bean
+    Binding binding1(@Qualifier("sceneGenerationRequestQueue") Queue queue, TopicExchange exchange) {
+        return BindingBuilder.bind(queue).to(exchange).with(queue.getName());
     }
 
     @Bean

@@ -1,15 +1,15 @@
 package cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.queueing.domain;
 
-import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.common.dto.DtoAncestor;
+import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.dto.ParseFileCommandDto;
 
 import java.io.Serializable;
 import java.util.UUID;
 
-public class TaskRequestMessage implements Serializable {
+public class ParseModelTaskRequestMessage implements Serializable {
     private UUID clientID;
     private UUID operationID;
     private OPERATION_TYPE operationType;
-    private DtoAncestor content;
+    private ParseFileCommandDto content;
 
     public UUID getClientID() {
         return clientID;
@@ -35,11 +35,11 @@ public class TaskRequestMessage implements Serializable {
         this.operationType = operationType;
     }
 
-    public DtoAncestor getContent() {
+    public ParseFileCommandDto getContent() {
         return content;
     }
 
-    public void setContent(DtoAncestor content) {
+    public void setContent(ParseFileCommandDto content) {
         this.content = content;
     }
 }

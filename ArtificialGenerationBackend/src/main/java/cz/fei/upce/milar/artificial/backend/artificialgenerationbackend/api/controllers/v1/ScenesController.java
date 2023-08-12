@@ -53,7 +53,7 @@ public class ScenesController {
             socketService.sendLogToClient(client.getSocketID(),
                     "Request to generate scenes received, queueing as task with id " + uuid);
 
-            sender.sendGeneratePositionsCommand(id, uuid, generatePositionsCommandDto);
+            sender.sendGenerateScenesCommand(id, uuid, generatePositionsCommandDto);
 
             TaskCreatedResponseDto responseDto = new TaskCreatedResponseDto(uuid);
 
