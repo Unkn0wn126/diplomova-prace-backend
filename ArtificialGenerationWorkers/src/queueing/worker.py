@@ -2,14 +2,18 @@ import pika, json, sys, os, tempfile
 import src.models.parsing as model_parsing
 import dataclasses
 import base64
+from .config import RabbitConfig
 
 # basic skeleton taken from: https://www.rabbitmq.com/tutorials/tutorial-one-python.html
-docker_host = 'artificial-generation-rabbitmq'
-local_host = 'localhost'
 
 
-def main():
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host=local_host, credentials=pika.credentials.PlainCredentials(username='myuser', password='mypassword')))
+def main(config: RabbitConfig):
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host=config.host,
+                                                                   port=config.port,
+                                                                   credentials=pika.credentials
+                                                                   .PlainCredentials(
+                                                                       username=config.user_name,
+                                                                       password=config.password)))
     channel = connection.channel()
 
     channel.queue_declare(queue='spring-boot')
