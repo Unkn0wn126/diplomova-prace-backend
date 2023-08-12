@@ -28,11 +28,11 @@ public class UserFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        String userID = request.getHeader("client-id");
-        if (userID == null) {
-            throw new AccessDeniedException("No client id present");
-        }
         try {
+            String userID = request.getHeader("client-id");
+            if (userID == null) {
+                throw new AccessDeniedException("No client id present");
+            }
             UUID uuid = UUID.fromString(userID);
 
             if (!activeClientsService.isClientRegistered(uuid)) {
@@ -41,8 +41,8 @@ public class UserFilter extends OncePerRequestFilter {
 
             logger.info(userID);
             filterChain.doFilter(request, response);
-        } catch (IllegalArgumentException ex) {
-            throw new AccessDeniedException("Invalid client id");
+        } catch (AccessDeniedException | RuntimeException ex) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, ex.getMessage());
         }
     }
 }
