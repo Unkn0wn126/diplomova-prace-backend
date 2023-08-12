@@ -8,7 +8,7 @@ public class SceneDefinitionDto {
     private int width;
     private int height;
     private int numberOfVerticalLayers;
-    private int numberOfObject;
+    private int numberOfObjects;
     private int numberOfScenes;
     private boolean useSimulation;
     private int generationAlgorithm;
@@ -34,8 +34,8 @@ public class SceneDefinitionDto {
     }
 
     @JsonGetter("numberOfObjects")
-    public int getNumberOfObject() {
-        return numberOfObject;
+    public int getNumberOfObjects() {
+        return numberOfObjects;
     }
 
     @JsonGetter("numberOfScenes")

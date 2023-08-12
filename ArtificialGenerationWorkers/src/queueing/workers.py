@@ -8,6 +8,7 @@ import sys
 import tempfile
 
 import src.models.parsing as model_parsing
+import src.scenes.generation as scene_gen
 from .config import RabbitConfig
 from .constants import OPERATION_RESULT_SUCCESS, OPERATION_RESULT_ERROR
 
@@ -104,15 +105,13 @@ def launch_scene_generation(config: RabbitConfig, request_queue: str, response_q
         operation_type = loaded.get('operationType')
         content = loaded.get('content')
 
-        print("operation type: " + operation_type)
-
         try:
             if operation_type == 'GENERATE_SCENES':
-                model_dict = content.get('model')
-                scene_definition_dict = content.get('sceneDefinition')
-                grab_points_dict = content.get('grabPoints')
+                result = scene_gen.generate_scene(content)
 
-                resp_json = json.dumps({"message": "Scene generated successfully", "content": None})
+                result_dict = dataclasses.asdict(result)
+
+                resp_json = json.dumps({"message": "Scene generated successfully", "content": result_dict})
 
                 channel2.basic_publish(exchange='',
                                        routing_key=response_queue,

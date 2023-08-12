@@ -2,6 +2,7 @@ package cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.queuein
 
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.dto.GenerateScenesCommandDto;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.dto.ParseFileCommandDto;
+import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.util.SingleSceneCommandDtoFactory;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.queueing.domain.GenerateScenesTaskRequestMessage;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.queueing.domain.OPERATION_TYPE;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.queueing.domain.ParseModelTaskRequestMessage;
@@ -37,22 +38,29 @@ public class QueueSender {
     private Queue sceneGenerationRequestQueue;
 
     public void sendGenerateScenesCommand(UUID clientId, UUID operationID,
-                                          GenerateScenesCommandDto generatePositionsCommandDto) {
-        GenerateScenesTaskRequestMessage taskMessage = new GenerateScenesTaskRequestMessage();
-        taskMessage.setClientID(clientId);
-        taskMessage.setOperationID(operationID);
-        taskMessage.setOperationType(OPERATION_TYPE.GENERATE_SCENES);
-        taskMessage.setContent(generatePositionsCommandDto);
+                                          GenerateScenesCommandDto generateScenesCommandDto) {
+        for (int i = 0; i < generateScenesCommandDto.getSceneDefinition().getNumberOfScenes(); i++) {
+            GenerateScenesTaskRequestMessage taskMessage = new GenerateScenesTaskRequestMessage();
+            taskMessage.setClientID(clientId);
+            taskMessage.setOperationID(operationID);
+            taskMessage.setOperationType(OPERATION_TYPE.GENERATE_SCENES);
+            taskMessage.setContent(SingleSceneCommandDtoFactory
+                    .createFromGenerateScenesCommandDto(generateScenesCommandDto, i));
 
-        try {
-            this.template.convertAndSend(sceneGenerationRequestQueue.getName(), taskMessage, messagePostProcessor -> {
-                messagePostProcessor.getMessageProperties().setHeader("operationType", OPERATION_TYPE.GENERATE_SCENES);
-                messagePostProcessor.getMessageProperties().setHeader("operationID", operationID);
-                return messagePostProcessor;
-            });
-        } catch (AmqpException e) {
-            logger.error(e.getMessage());
-            // TODO inform client
+            try {
+                this.template.convertAndSend(sceneGenerationRequestQueue.getName(),
+                        taskMessage, messagePostProcessor -> {
+
+                    messagePostProcessor.getMessageProperties().setHeader("operationType",
+                            OPERATION_TYPE.GENERATE_SCENES);
+
+                    messagePostProcessor.getMessageProperties().setHeader("operationID", operationID);
+                    return messagePostProcessor;
+                });
+            } catch (AmqpException e) {
+                logger.error(e.getMessage());
+                // TODO inform client
+            }
         }
     }
 

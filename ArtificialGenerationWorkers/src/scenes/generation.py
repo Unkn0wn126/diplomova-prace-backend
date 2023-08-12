@@ -1,10 +1,15 @@
-# TODO change naming scheme to something more appropriate for Python
-
-def parse_domain_from_dict(content: dict):
-    model_dict = content.get('model')
-    scene_definition_dict = content.get('sceneDefinition')
-    grab_points_dict = content.get('grabPoints')
+from .conversion import parse_scene_generation_data_from_dict, SceneGenerationData
+from .domain import SceneData, SceneModelsCoords, Transform3, Transform4, Model, GrabPoint
 
 
-def parse_model_domain_from_dict(model_dict: dict):
-    pass
+def generate_scene(source: dict) -> SceneData:
+    instructions: SceneGenerationData = parse_scene_generation_data_from_dict(source)
+
+    scene_name: str = f"{instructions.scene_definition.scene_name_prefix}{instructions.scene_definition.scene_number}"
+
+    return SceneData(name=scene_name, height=instructions.scene_definition.height,
+                     width=instructions.scene_definition.width, cameraPosition=Transform3(x=0, y=0, z=0),
+                     modelTransforms=[SceneModelsCoords(position=Transform3(x=0, y=0, z=0),
+                                                        rotation=Transform4(x=0, y=0, z=0, w=1.0))],
+                     grabPointTransforms=[SceneModelsCoords(position=Transform3(x=0, y=0, z=0),
+                                                            rotation=Transform4(x=0, y=0, z=0, w=1.0))])

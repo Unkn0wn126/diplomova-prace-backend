@@ -45,10 +45,12 @@ class ModelMesh:
 class Model:
     mesh: ModelMesh
     position: Transform3
+    rotation: Transform4
+    scale: Transform3
 
 
 @dataclass
 class GrabPoint:
-    local_position: Transform3
-    local_rotation: Transform4
-    local_scale: Transform3
+    localPosition: Transform3
+    localRotation: Transform4
+    localScale: Transform3

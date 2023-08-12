@@ -1,8 +1,6 @@
 import assimp_py
 import src.models.domain as models
 
-# TODO change naming scheme to something more appropriate for Python
-
 process_flags = (
         assimp_py.Process_Triangulate | assimp_py.Process_CalcTangentSpace
 )

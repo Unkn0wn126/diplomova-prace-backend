@@ -1,14 +1,13 @@
 package cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.dto;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
-import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.common.dto.DtoAncestor;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.models.dto.GrabPointDto;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.models.dto.ModelDto;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.scenes.dto.SceneDefinitionDto;
 
 import java.util.List;
 
-public class GenerateScenesCommandDto extends DtoAncestor {
+public class GenerateScenesCommandDto {
     private ModelDto model;
     private List<GrabPointDto> grabPoints;
     private SceneDefinitionDto sceneDefinition;

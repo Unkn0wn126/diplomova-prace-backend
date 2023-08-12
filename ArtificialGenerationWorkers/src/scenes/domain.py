@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from src.models.domain import Transform3, Transform4
+from src.models.domain import Transform3, Transform4, Model, GrabPoint
 
 
 @dataclass
@@ -13,9 +13,9 @@ class SceneData:
     name: str
     width: int
     height: int
-    camera_position: Transform3
-    model_transforms: list[SceneModelsCoords]
-    grabpoint_transforms: list[SceneModelsCoords]
+    cameraPosition: Transform3
+    modelTransforms: list[SceneModelsCoords]
+    grabPointTransforms: list[SceneModelsCoords]
 
 
 @dataclass
@@ -25,7 +25,14 @@ class SceneDefinition:
     height: int
     number_of_vertical_layers: int
     number_of_objects: int
-    number_of_scenes: int
+    scene_number: int
     use_simulation: bool
     generation_algorithm: int
     aspect_ratio: int
+
+
+@dataclass
+class SceneGenerationData:
+    scene_definition: SceneDefinition
+    model: Model
+    grab_points: list[GrabPoint]
