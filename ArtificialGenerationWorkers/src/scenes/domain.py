@@ -6,6 +6,7 @@ from src.models.domain import Transform3, Transform4, Model, GrabPoint
 class SceneModelsCoords:
     position: Transform3
     rotation: Transform4
+    scale: Transform3
 
 
 @dataclass

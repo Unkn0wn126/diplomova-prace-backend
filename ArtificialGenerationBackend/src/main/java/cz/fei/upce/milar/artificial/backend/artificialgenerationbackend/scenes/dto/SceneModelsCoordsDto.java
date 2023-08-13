@@ -7,6 +7,7 @@ import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.models.d
 public class SceneModelsCoordsDto {
     private Transform3Dto position;
     private Transform4Dto rotation;
+    private Transform3Dto scale;
 
     @JsonGetter("position")
     public Transform3Dto getPosition() {
@@ -16,5 +17,10 @@ public class SceneModelsCoordsDto {
     @JsonGetter("rotation")
     public Transform4Dto getRotation() {
         return rotation;
+    }
+
+    @JsonGetter("scale")
+    public Transform3Dto getScale() {
+        return scale;
     }
 }

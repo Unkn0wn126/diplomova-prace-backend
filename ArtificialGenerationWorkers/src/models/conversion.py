@@ -14,8 +14,9 @@ def convert_transform2_from_dict(source: dict) -> Transform2:
 
 
 def convert_grab_point_from_dict(source: dict) -> GrabPoint:
-    return GrabPoint(localPosition=source["localPosition"], localRotation=source["localRotation"],
-                     localScale=source["localScale"])
+    return GrabPoint(localPosition=convert_transform3_from_dict(source["localPosition"]),
+                     localRotation=convert_transform4_from_dict(source["localRotation"]),
+                     localScale=convert_transform3_from_dict(source["localScale"]))
 
 
 def convert_grab_point_list_from_dict(source: dict) -> list[GrabPoint]:
