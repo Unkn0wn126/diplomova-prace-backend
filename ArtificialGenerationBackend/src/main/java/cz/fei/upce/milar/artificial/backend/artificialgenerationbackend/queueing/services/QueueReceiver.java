@@ -5,13 +5,13 @@ import com.corundumstudio.socketio.SocketIOServer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.services.ActiveEndpointsService;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.services.TempFileService;
-import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.models.dto.ModelDto;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.queueing.domain.GenerateScenesTaskResponseMessage;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.queueing.domain.OPERATION_RESULT;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.queueing.domain.OPERATION_TYPE;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.queueing.domain.ParseModelTaskResponseMessage;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.queueing.util.ReceivedMessageHelper;
-import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.sockets.util.SocketEventTypes;
+import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.sockets.dto.OperationFinishedResponseDto;
+import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.sockets.services.SocketService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Message;
@@ -38,17 +38,21 @@ public class QueueReceiver implements ApplicationContextAware {
     @Autowired
     private ActiveEndpointsService activeEndpointsService;
 
+    @Autowired
+    private SocketService socketService;
+
     private ApplicationContext applicationContext;
 
     @RabbitListener(queues = "${queues.model-parsing.response}")
     public void receiveParseModelResultMessage(Message message) {
+        SocketIOClient client = null;
         try {
             ReceivedMessageHelper receivedMessageHelper = extractMessageData(message);
 
-            SocketIOClient client = server.getClient(receivedMessageHelper.CLIENT_ID);
+            client = server.getClient(receivedMessageHelper.CLIENT_ID);
 
             logger.info("Received parsed model for operation {} processing", receivedMessageHelper.OPERATION_ID);
-            client.sendEvent(SocketEventTypes.BACKEND_LOG.getValue(), "Received parsed model, processing...");
+            socketService.sendLogToClient(client.getSessionId(), "Received parsed model, processing...");
 
             String result = receivedMessageHelper.dataAsString(StandardCharsets.UTF_8);
 
@@ -63,26 +67,32 @@ public class QueueReceiver implements ApplicationContextAware {
             tempFileService.saveModelToTempFile(receivedMessageHelper.CLIENT_ID,
                     receivedMessageHelper.OPERATION_ID, taskResponseMessage);
 
-            client.sendEvent(SocketEventTypes.PROCESS_FINISHED.getValue(),
-                    activeEndpointsService.composeModelResultPath() + "/" + receivedMessageHelper.OPERATION_ID +
-                            "?index=" + taskResponseMessage.getOperationIndex());
+            socketService.sendOperationFinishedToClient(client.getSessionId(),
+                    new OperationFinishedResponseDto(true, taskResponseMessage.getMessage(),
+                            activeEndpointsService.composeModelResultPath() + "/" +
+                                    receivedMessageHelper.OPERATION_ID + "?index=" +
+                                    taskResponseMessage.getOperationIndex()));
         } catch (Exception e) {
             logger.error(e.getMessage());
-            // TODO inform client
+            if (client != null) {
+                socketService.sendOperationFinishedToClient(client.getSessionId(),
+                        new OperationFinishedResponseDto(false, e.getMessage(), null));
+            } else {
+                logger.error("Could not send response to client, as it was null");
+            }
         }
     }
 
     @RabbitListener(queues = "${queues.scene-generation.response}")
     public void receiveGenerateSceneResultMessage(Message message) {
+        SocketIOClient client = null;
         try {
             ReceivedMessageHelper receivedMessageHelper = extractMessageData(message);
 
-            SocketIOClient client = server.getClient(receivedMessageHelper.CLIENT_ID);
-
+            client = server.getClient(receivedMessageHelper.CLIENT_ID);
 
             logger.info("Received generated scene for operation {} processing", receivedMessageHelper.OPERATION_ID);
-            client.sendEvent(SocketEventTypes.BACKEND_LOG.getValue(),
-                    "Received generated scene, processing...");
+            socketService.sendLogToClient(client.getSessionId(), "Received generated scene, processing...");
 
             String result = receivedMessageHelper.dataAsString(StandardCharsets.UTF_8);
 
@@ -97,12 +107,18 @@ public class QueueReceiver implements ApplicationContextAware {
             tempFileService.saveSceneToTempFile(receivedMessageHelper.CLIENT_ID,
                     receivedMessageHelper.OPERATION_ID, taskResponseMessage);
 
-            client.sendEvent(SocketEventTypes.PROCESS_FINISHED.getValue(),
-                    activeEndpointsService.composeSceneResultPath() + "/" + receivedMessageHelper.OPERATION_ID +
-                    "?index=" + taskResponseMessage.getOperationIndex());
+            socketService.sendOperationFinishedToClient(client.getSessionId(),
+                    new OperationFinishedResponseDto(true, taskResponseMessage.getMessage(),
+                            activeEndpointsService.composeSceneResultPath() + "/" +
+                                    receivedMessageHelper.OPERATION_ID + "?index=" +
+                                    taskResponseMessage.getOperationIndex()));
         } catch (Exception e) {
-            logger.error(e.getMessage());
-            // TODO inform client
+            if (client != null) {
+                socketService.sendOperationFinishedToClient(client.getSessionId(),
+                        new OperationFinishedResponseDto(false, e.getMessage(), null));
+            } else {
+                logger.error("Could not send response to client, as it was null");
+            }
         }
     }
 

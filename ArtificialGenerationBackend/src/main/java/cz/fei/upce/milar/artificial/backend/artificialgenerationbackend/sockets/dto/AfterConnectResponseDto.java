@@ -1,7 +1,6 @@
 package cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.sockets.dto;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonSetter;
 
 public class AfterConnectResponseDto {
     private String clientID;
@@ -21,17 +20,17 @@ public class AfterConnectResponseDto {
         return clientID;
     }
 
-    @JsonSetter("apiPort")
+    @JsonGetter("apiPort")
     public String getApiPort() {
         return apiPort;
     }
 
-    @JsonSetter("parseModelUrl")
+    @JsonGetter("parseModelUrl")
     public String getParseModelUrl() {
         return parseModelUrl;
     }
 
-    @JsonSetter("generateScenesUrl")
+    @JsonGetter("generateScenesUrl")
     public String getGenerateScenesUrl() {
         return generateScenesUrl;
     }

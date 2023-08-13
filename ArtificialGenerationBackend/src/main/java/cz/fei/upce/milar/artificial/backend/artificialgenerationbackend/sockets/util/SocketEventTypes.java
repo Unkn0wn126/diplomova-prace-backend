@@ -2,7 +2,7 @@ package cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.sockets
 
 public enum SocketEventTypes {
     AFTER_CONNECT("after_connect"),
-    PROCESS_FINISHED("process_finished"),
+    OPERATION_FINISHED("operation_finished"),
     BACKEND_LOG("backend_log");
 
     private final String value;
