@@ -37,8 +37,10 @@ def convert_model_mesh_face_from_dict(source: dict) -> ModelMeshFace:
 
 
 def convert_model_mesh_vertex_from_dict(source: dict) -> ModelMeshVertex:
-    return ModelMeshVertex(position=source["position"], normal=source["normal"], texcoords=source["texcoords"],
-                           tangent=source["tangent"])
+    return ModelMeshVertex(position=convert_transform3_from_dict(source["position"]),
+                           normal=convert_transform3_from_dict(source["normal"]),
+                           texcoords=convert_transform2_from_dict(source["texcoords"]),
+                           tangent=convert_transform3_from_dict(source["tangent"]))
 
 
 def convert_model_mesh_from_dict(source: dict) -> ModelMesh:
@@ -56,6 +58,6 @@ def convert_model_mesh_from_dict(source: dict) -> ModelMesh:
 
 def convert_model_from_dict(source: dict) -> Model:
     return Model(mesh=convert_model_mesh_from_dict(source["mesh"]),
-                 position=Transform3(x=0, y=0, z=0) or convert_transform3_from_dict(source["position"]),
-                 rotation=Transform4(x=0, y=0, z=0, w=1) or convert_transform4_from_dict(source["rotation"]),
-                 scale=Transform3(x=0, y=0, z=0) or convert_transform3_from_dict(source["scale"]))
+                 position=convert_transform3_from_dict(source["position"] or Transform3(x=0, y=0, z=0)),
+                 rotation=convert_transform4_from_dict(source["rotation"] or Transform4(x=0, y=0, z=0, w=1)),
+                 scale=convert_transform3_from_dict(source["scale"] or Transform3(x=0, y=0, z=0)))

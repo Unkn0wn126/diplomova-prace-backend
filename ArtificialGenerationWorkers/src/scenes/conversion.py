@@ -1,5 +1,6 @@
 import src.models.conversion as m_c
 from .domain import SceneModelsCoords, SceneData, SceneDefinition, SceneGenerationData
+import trimesh
 
 
 def parse_scene_definition_data_from_dict(source: dict) -> SceneDefinition:
@@ -19,3 +20,19 @@ def parse_scene_generation_data_from_dict(source: dict) -> SceneGenerationData:
     scene_definition: SceneDefinition = parse_scene_definition_data_from_dict(scene_definition_dict)
 
     return SceneGenerationData(scene_definition=scene_definition, model=model, grab_points=grab_points)
+
+
+def convert_mesh_to_trimesh(source: m_c.ModelMesh):
+    # convert vertices to arrays
+    vertices = []
+
+    for vertex in source.vertices:
+        vertices.append([vertex.position.x, vertex.position.y, vertex.position.z])
+
+    # make a list of faces list
+    faces = []
+
+    for face in source.faces:
+        faces.append(face.indices)
+
+    return trimesh.Trimesh(vertices=vertices, faces=faces)
