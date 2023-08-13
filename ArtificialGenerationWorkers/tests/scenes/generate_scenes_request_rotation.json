@@ -1003,7 +1003,7 @@
         "numberOfObjects": 100,
         "sceneNumber": 1,
         "useSimulation": false,
-        "generationAlgorithm": 0,
+        "generationAlgorithm": 1,
         "aspectRatio": 0
     }
 }
