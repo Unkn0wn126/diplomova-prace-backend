@@ -39,9 +39,6 @@ public class ScenesController {
     @Autowired
     private ActiveClientsService activeClientsService;
 
-    @Autowired
-    private ActiveEndpointsService activeEndpointsService;
-
     @PostMapping("${scenes-controller.start-operation.path}")
     public ResponseEntity<TaskCreatedResponseDto> generatePositions(@RequestHeader("client-id") UUID id,
                                                 @RequestBody GenerateScenesCommandDto generatePositionsCommandDto) {
@@ -51,7 +48,9 @@ public class ScenesController {
         client.addOperationToClient(uuid, generatePositionsCommandDto.getSceneDefinition().getNumberOfScenes());
 
         socketService.sendLogToClient(client.getSocketID(),
-                "Request to generate scenes received, queueing as task with id " + uuid);
+                "Request to generate scenes received, queueing as operation with id " + uuid);
+
+        logger.info("Request to generate scenes received, queueing as operation with id {}", uuid);
 
         sender.sendGenerateScenesCommand(id, uuid, generatePositionsCommandDto);
 

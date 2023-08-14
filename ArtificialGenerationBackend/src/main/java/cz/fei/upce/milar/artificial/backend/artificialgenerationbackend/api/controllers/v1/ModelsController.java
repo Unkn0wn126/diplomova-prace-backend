@@ -42,9 +42,6 @@ public class ModelsController {
     @Autowired
     private ActiveClientsService activeClientsService;
 
-    @Autowired
-    private ActiveEndpointsService activeEndpointsService;
-
     @PostMapping("${models-controller.start-operation.path}")
     public ResponseEntity<TaskCreatedResponseDto> parseModelFromFile(@RequestHeader("client-id") UUID id,
                                                                      @RequestParam("file") MultipartFile file)
@@ -54,9 +51,9 @@ public class ModelsController {
 
         client.addOperationToClient(uuid, 1);
         socketService.sendLogToClient(client.getSocketID(),
-                "Request to parse file received, queueing as task with id " + uuid);
+                "Request to parse file received, queueing as operation with id " + uuid);
 
-        logger.info("Request to parse file received, queueing as task with id {}", uuid);
+        logger.info("Request to parse file received, queueing as operation with id {}", uuid);
 
         String originalFilename = file.getOriginalFilename();
         String extension = FilenameUtils.getExtension(originalFilename);

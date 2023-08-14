@@ -46,10 +46,12 @@ public class QueueReceiver implements ApplicationContextAware {
     @RabbitListener(queues = "${queues.model-parsing.response}")
     public void receiveParseModelResultMessage(Message message) {
         SocketIOClient client = null;
+        UUID operationID = null;
         try {
             ReceivedMessageHelper receivedMessageHelper = extractMessageData(message);
 
             client = server.getClient(receivedMessageHelper.CLIENT_ID);
+            operationID = receivedMessageHelper.OPERATION_ID;
 
             logger.info("Received parsed model for operation {} processing", receivedMessageHelper.OPERATION_ID);
             socketService.sendLogToClient(client.getSessionId(), "Received parsed model, processing...");
@@ -68,7 +70,7 @@ public class QueueReceiver implements ApplicationContextAware {
                     receivedMessageHelper.OPERATION_ID, taskResponseMessage);
 
             socketService.sendOperationFinishedToClient(client.getSessionId(),
-                    new OperationFinishedResponseDto(true, taskResponseMessage.getMessage(),
+                    new OperationFinishedResponseDto(operationID, true, taskResponseMessage.getMessage(),
                             activeEndpointsService.composeModelResultPath() + "/" +
                                     receivedMessageHelper.OPERATION_ID + "?index=" +
                                     taskResponseMessage.getOperationIndex()));
@@ -76,7 +78,7 @@ public class QueueReceiver implements ApplicationContextAware {
             logger.error(e.getMessage());
             if (client != null) {
                 socketService.sendOperationFinishedToClient(client.getSessionId(),
-                        new OperationFinishedResponseDto(false, e.getMessage(), null));
+                        new OperationFinishedResponseDto(operationID, false, e.getMessage(), null));
             } else {
                 logger.error("Could not send response to client, as it was null");
             }
@@ -86,10 +88,12 @@ public class QueueReceiver implements ApplicationContextAware {
     @RabbitListener(queues = "${queues.scene-generation.response}")
     public void receiveGenerateSceneResultMessage(Message message) {
         SocketIOClient client = null;
+        UUID operationID = null;
         try {
             ReceivedMessageHelper receivedMessageHelper = extractMessageData(message);
 
             client = server.getClient(receivedMessageHelper.CLIENT_ID);
+            operationID = receivedMessageHelper.OPERATION_ID;
 
             logger.info("Received generated scene for operation {} processing", receivedMessageHelper.OPERATION_ID);
             socketService.sendLogToClient(client.getSessionId(), "Received generated scene, processing...");
@@ -108,14 +112,14 @@ public class QueueReceiver implements ApplicationContextAware {
                     receivedMessageHelper.OPERATION_ID, taskResponseMessage);
 
             socketService.sendOperationFinishedToClient(client.getSessionId(),
-                    new OperationFinishedResponseDto(true, taskResponseMessage.getMessage(),
+                    new OperationFinishedResponseDto(operationID, true, taskResponseMessage.getMessage(),
                             activeEndpointsService.composeSceneResultPath() + "/" +
                                     receivedMessageHelper.OPERATION_ID + "?index=" +
                                     taskResponseMessage.getOperationIndex()));
         } catch (Exception e) {
             if (client != null) {
                 socketService.sendOperationFinishedToClient(client.getSessionId(),
-                        new OperationFinishedResponseDto(false, e.getMessage(), null));
+                        new OperationFinishedResponseDto(operationID, false, e.getMessage(), null));
             } else {
                 logger.error("Could not send response to client, as it was null");
             }
