@@ -6,11 +6,24 @@ import numpy as np
 import trimesh
 from scipy.spatial.transform import Rotation as R
 import poisson_disc as pd
+from pyrr import Quaternion, Vector3, Matrix44
+
+
+def convert_matrix_to_scene_models_coords(res_tran: Matrix44):
+    scale_rot_pos = res_tran.decompose()
+
+    pos = scale_rot_pos[2]
+    rot = scale_rot_pos[1]
+    scale = scale_rot_pos[0]
+
+    return SceneModelsCoords(position=Transform3(x=pos[0], y=pos[1], z=pos[2]),
+                             rotation=Transform4(x=rot[0], y=rot[1], z=rot[2], w=rot[3]),
+                             scale=Transform3(x=scale[0], y=scale[1], z=scale[2]))
 
 
 def generate_position_random(mesh: trimesh, col_manager: trimesh.collision.CollisionManager,
                              bounds: dict, org_transforms: dict):
-    result_transform: np.matrix
+    result_transform: Matrix44
     max_tries = 100
     counter = 1
     while True:
@@ -20,11 +33,9 @@ def generate_position_random(mesh: trimesh, col_manager: trimesh.collision.Colli
 
         random_rot = trimesh.transformations.random_rotation_matrix()
 
-        random_pos = trimesh.transformations.translation_matrix([rnd_x, rnd_y, rnd_z])
+        random_pos = Matrix44.from_translation(Vector3([rnd_x, rnd_y, rnd_z]))
 
-        result_transform = trimesh.transformations.concatenate_matrices(org_transforms["translation"], random_pos,
-                                                                        org_transforms["rotation"], random_rot,
-                                                                        org_transforms["scale"])
+        result_transform = org_transforms["translation"] * random_pos * org_transforms["rotation"] * random_rot * org_transforms["scale"]
 
         if not col_manager.in_collision_single(mesh, result_transform) or counter >= max_tries:
             break
@@ -37,31 +48,22 @@ def generate_positions_random(instr: SceneGenerationData, mesh: trimesh, org_tra
     model_transforms = []
     col_manager = trimesh.collision.CollisionManager()
     for i in range(instr.scene_definition.number_of_objects):
-        res_tran: np.matrix = generate_position_random(mesh, col_manager, {
+        res_tran: Matrix44 = generate_position_random(mesh, col_manager, {
             "width": instr.scene_definition.width,
             "depth": instr.scene_definition.number_of_vertical_layers * max_bounds,
             "height": instr.scene_definition.height}, org_transforms)
 
         col_manager.add_object(f"{i}", mesh, transform=res_tran)
+        model_transforms.append(convert_matrix_to_scene_models_coords(res_tran))
 
-        translation = trimesh.transformations.translation_from_matrix(res_tran)
-        rot = trimesh.transformations.quaternion_from_matrix(res_tran)
-        scale = trimesh.transformations.scale_from_matrix(res_tran)[1]
-
-        model_transforms.append(SceneModelsCoords(position=Transform3(x=translation[0], y=translation[1],
-                                                                      z=translation[2]),
-                                                  rotation=Transform4(x=rot[0], y=rot[1],
-                                                                      z=rot[2], w=rot[3]),
-                                                  scale=Transform3(x=scale[0], y=scale[1], z=scale[2])))
-
-        return model_transforms
+    return model_transforms
 
 
 def generate_positions_poisson(max_model_bounds: float, number_of_objects: int, area_bounds: dict,
                                orig_trans: dict):
     # pd.np.random.seed(0) # TODO solve seed
     p_transforms = pd.Bridson_sampling(np.array([area_bounds["width"], area_bounds["depth"], area_bounds["height"]]),
-                                       radius=max_model_bounds)
+                                       radius=max_model_bounds, k=100)
 
     np.random.shuffle(p_transforms)
     transform_range = min(number_of_objects, len(p_transforms))
@@ -70,20 +72,11 @@ def generate_positions_poisson(max_model_bounds: float, number_of_objects: int, 
 
     for i in range(transform_range):
         rand_rot = trimesh.transformations.random_rotation_matrix()
-        rand_pos = trimesh.transformations.translation_matrix([p_transforms[i][0], p_transforms[i][1],
-                                                               p_transforms[i][2]])
+        rand_pos = Matrix44.from_translation(Vector3([p_transforms[i][0], p_transforms[i][1], p_transforms[i][2]]))
 
-        res_tran = trimesh.transformations.concatenate_matrices(orig_trans["translation"], rand_pos,
-                                                                orig_trans["rotation"], rand_rot,
-                                                                orig_trans["scale"])
+        res_tran = orig_trans["translation"] * rand_pos * orig_trans["rotation"] * rand_rot * orig_trans["scale"]
 
-        pos = trimesh.transformations.translation_from_matrix(res_tran)
-        rot = trimesh.transformations.quaternion_from_matrix(res_tran)
-        scale = trimesh.transformations.scale_from_matrix(res_tran)[1]
-
-        mod_trans.append(SceneModelsCoords(position=Transform3(x=pos[0], y=pos[1], z=pos[2]),
-                                           rotation=Transform4(x=rot[0], y=rot[1], z=rot[2], w=rot[3]),
-                                           scale=Transform3(x=scale[0], y=scale[1], z=scale[2])))
+        mod_trans.append(convert_matrix_to_scene_models_coords(res_tran))
 
     return mod_trans
 
@@ -108,27 +101,22 @@ def generate_model_transforms(instr: SceneGenerationData, mesh: trimesh, org_tra
 
     raise NotImplementedError("Invalid algorithm value")
 
+
 def transform_grab_point_to_parent(model_transforms: SceneModelsCoords, grab_point: GrabPoint) -> SceneModelsCoords:
-    model_pos = np.array([model_transforms.position.x, model_transforms.position.y, model_transforms.position.z])
-    gp_pos = np.array([grab_point.localPosition.x, grab_point.localPosition.y, grab_point.localPosition.z])
+    model_pos = Vector3([model_transforms.position.x, model_transforms.position.y, model_transforms.position.z])
+    gp_pos = Vector3([grab_point.localPosition.x, grab_point.localPosition.y, grab_point.localPosition.z])
+    gp_scale = Vector3([grab_point.localScale.x, grab_point.localScale.y, grab_point.localScale.z])
 
-    tran_to_new_pos = trimesh.transformations.translation_matrix(np.add(model_pos, gp_pos))
+    tran_to_new_pos = Matrix44.from_translation(model_pos + gp_pos)
     local_rot = get_rotation_matrix(grab_point.localRotation)
-    tran_to_origin = trimesh.transformations.translation_matrix(np.negative(gp_pos))
+    tran_to_origin = Matrix44.from_translation(gp_pos.inverse)
     rot = get_rotation_matrix(model_transforms.rotation)
-    tran_back_from_origin = trimesh.transformations.translation_matrix(gp_pos)
-    scale = trimesh.transformations.scale_matrix(1)
+    tran_back_from_origin = Matrix44.from_translation(gp_pos)
+    scale = Matrix44.from_scale(gp_scale)
 
-    res_tran = trimesh.transformations.concatenate_matrices(tran_to_new_pos, tran_to_origin, rot, tran_back_from_origin,
-                                                            local_rot, scale)
+    res_tran = tran_to_new_pos * tran_to_origin * rot * tran_back_from_origin * local_rot * scale
 
-    pos = trimesh.transformations.translation_from_matrix(res_tran)
-    rot = trimesh.transformations.quaternion_from_matrix(res_tran)
-    scale = trimesh.transformations.scale_from_matrix(res_tran)[1]
-
-    return SceneModelsCoords(position=Transform3(x=pos[0], y=pos[1], z=pos[2]),
-                             rotation=Transform4(x=rot[0], y=rot[1], z=rot[2], w=rot[3]),
-                             scale=Transform3(x=scale[0], y=scale[1], z=scale[2]))
+    return convert_matrix_to_scene_models_coords(res_tran)
 
 
 def transform_grab_points_to_parent(model_transforms: SceneModelsCoords,
@@ -147,11 +135,9 @@ def generate_scene_transforms(instr: SceneGenerationData) -> dict:
 
     model: Model = instr.model
 
-    original_translation = trimesh.transformations.translation_matrix(
-        [model.position.x, model.position.y, model.position.z])
+    original_translation = Matrix44.from_translation(Vector3([model.position.x, model.position.y, model.position.z]))
     org_rot_matrix = get_rotation_matrix(model.rotation)
-    # TODO scale
-    scale = trimesh.transformations.scale_matrix(1)
+    scale = Matrix44.from_scale([model.scale.x, model.scale.y, model.scale.z])
 
     max_bounds = np.amax(mesh.bounds) * 2
 
@@ -162,11 +148,9 @@ def generate_scene_transforms(instr: SceneGenerationData) -> dict:
     for model_transform in model_transforms:
         grab_point_transforms.extend(transform_grab_points_to_parent(model_transform, instr.grab_points))
 
-    max_depth = instr.scene_definition.number_of_vertical_layers * max_bounds
-
     camera_pos_x = math.ceil(instr.scene_definition.width / 2)
     camera_pos_z = math.ceil(instr.scene_definition.height / 2)
-    camera_pos_y = camera_pos_x + camera_pos_z + max_depth + max_bounds
+    camera_pos_y = instr.scene_definition.height + instr.scene_definition.number_of_vertical_layers
 
     result = {"modelTransforms": model_transforms,
               "grabPointsTransforms": grab_point_transforms,
