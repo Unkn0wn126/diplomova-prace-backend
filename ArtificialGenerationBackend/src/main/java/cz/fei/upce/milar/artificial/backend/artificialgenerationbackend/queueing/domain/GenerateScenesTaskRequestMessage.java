@@ -1,6 +1,5 @@
 package cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.queueing.domain;
 
-import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.dto.GenerateScenesCommandDto;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.dto.GenerateSingleSceneCommandDto;
 
 import java.util.UUID;
@@ -9,7 +8,7 @@ public class GenerateScenesTaskRequestMessage {
     private UUID clientID;
     private UUID operationID;
     private int operationIndex;
-    private OPERATION_TYPE operationType;
+    private OperationType operationType;
     private GenerateSingleSceneCommandDto content;
 
     public UUID getClientID() {
@@ -36,11 +35,11 @@ public class GenerateScenesTaskRequestMessage {
         this.operationIndex = operationIndex;
     }
 
-    public OPERATION_TYPE getOperationType() {
+    public OperationType getOperationType() {
         return operationType;
     }
 
-    public void setOperationType(OPERATION_TYPE operationType) {
+    public void setOperationType(OperationType operationType) {
         this.operationType = operationType;
     }
 

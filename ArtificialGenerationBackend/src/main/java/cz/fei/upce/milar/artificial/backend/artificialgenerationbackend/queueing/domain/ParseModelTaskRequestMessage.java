@@ -9,7 +9,7 @@ public class ParseModelTaskRequestMessage implements Serializable {
     private UUID clientID;
     private UUID operationID;
     private int operationIndex;
-    private OPERATION_TYPE operationType;
+    private OperationType operationType;
     private ParseFileCommandDto content;
 
     public UUID getClientID() {
@@ -36,11 +36,11 @@ public class ParseModelTaskRequestMessage implements Serializable {
         this.operationIndex = operationIndex;
     }
 
-    public OPERATION_TYPE getOperationType() {
+    public OperationType getOperationType() {
         return operationType;
     }
 
-    public void setOperationType(OPERATION_TYPE operationType) {
+    public void setOperationType(OperationType operationType) {
         this.operationType = operationType;
     }
 

@@ -2,7 +2,7 @@ package cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.queuein
 
 import java.io.Serializable;
 
-public enum OPERATION_TYPE implements Serializable {
+public enum OperationType implements Serializable {
     PARSE_OBJECTS,
     GENERATE_SCENES
 }

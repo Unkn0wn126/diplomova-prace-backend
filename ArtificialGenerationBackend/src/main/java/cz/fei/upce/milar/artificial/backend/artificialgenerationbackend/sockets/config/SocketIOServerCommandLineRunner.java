@@ -8,9 +8,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class SocketIOServerCommandLineRunner implements CommandLineRunner {
-    private static final Logger logger = LoggerFactory.getLogger(SocketIOServerCommandLineRunner.class);
-
-    /// taken with modifications from: https://medium.com/folksdev/spring-boot-netty-socket-io-example-3f21fcc1147d
     private final SocketIOServer server;
 
     public SocketIOServerCommandLineRunner(SocketIOServer server) {

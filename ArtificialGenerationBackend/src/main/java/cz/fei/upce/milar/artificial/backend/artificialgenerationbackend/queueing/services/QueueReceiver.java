@@ -6,8 +6,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.services.ActiveEndpointsService;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.services.TempFileService;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.queueing.domain.GenerateScenesTaskResponseMessage;
-import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.queueing.domain.OPERATION_RESULT;
-import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.queueing.domain.OPERATION_TYPE;
+import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.queueing.domain.OperationResult;
+import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.queueing.domain.OperationType;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.queueing.domain.ParseModelTaskResponseMessage;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.queueing.util.ReceivedMessageHelper;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.sockets.dto.OperationFinishedResponseDto;
@@ -62,7 +62,7 @@ public class QueueReceiver implements ApplicationContextAware {
             ParseModelTaskResponseMessage taskResponseMessage = mapper.readValue(result,
                     ParseModelTaskResponseMessage.class);
 
-            if (receivedMessageHelper.RESULT != OPERATION_RESULT.SUCCESS) {
+            if (receivedMessageHelper.RESULT != OperationResult.SUCCESS) {
                 throw new RuntimeException(taskResponseMessage.getMessage());
             }
 
@@ -104,7 +104,7 @@ public class QueueReceiver implements ApplicationContextAware {
             GenerateScenesTaskResponseMessage taskResponseMessage = mapper.readValue(result,
                     GenerateScenesTaskResponseMessage.class);
 
-            if (receivedMessageHelper.RESULT != OPERATION_RESULT.SUCCESS) {
+            if (receivedMessageHelper.RESULT != OperationResult.SUCCESS) {
                 throw new RuntimeException(taskResponseMessage.getMessage());
             }
 
@@ -132,15 +132,15 @@ public class QueueReceiver implements ApplicationContextAware {
     }
 
     private ReceivedMessageHelper extractMessageData(Message message) {
-        OPERATION_TYPE operationType =
-                OPERATION_TYPE.valueOf(message.getMessageProperties().getHeader("operationType"));
+        OperationType operationType =
+                OperationType.valueOf(message.getMessageProperties().getHeader("operationType"));
 
         UUID operationID = UUID.fromString(message.getMessageProperties().getHeader("operationID"));
 
         UUID clilentID = UUID.fromString(message.getMessageProperties().getHeader("clientID"));
 
-        OPERATION_RESULT operationResult =
-                OPERATION_RESULT.valueOf(message.getMessageProperties().getHeader("operationResult"));
+        OperationResult operationResult =
+                OperationResult.valueOf(message.getMessageProperties().getHeader("operationResult"));
 
         byte[] body = message.getBody();
 

@@ -4,7 +4,7 @@ import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.dto.
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.dto.ParseFileCommandDto;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.util.SingleSceneCommandDtoFactory;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.queueing.domain.GenerateScenesTaskRequestMessage;
-import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.queueing.domain.OPERATION_TYPE;
+import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.queueing.domain.OperationType;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.queueing.domain.ParseModelTaskRequestMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +44,7 @@ public class QueueSender {
             taskMessage.setClientID(clientId);
             taskMessage.setOperationID(operationID);
             taskMessage.setOperationIndex(i);
-            taskMessage.setOperationType(OPERATION_TYPE.GENERATE_SCENES);
+            taskMessage.setOperationType(OperationType.GENERATE_SCENES);
             taskMessage.setContent(SingleSceneCommandDtoFactory
                     .createFromGenerateScenesCommandDto(generateScenesCommandDto, i));
 
@@ -53,7 +53,7 @@ public class QueueSender {
                         taskMessage, messagePostProcessor -> {
 
                     messagePostProcessor.getMessageProperties().setHeader("operationType",
-                            OPERATION_TYPE.GENERATE_SCENES);
+                            OperationType.GENERATE_SCENES);
 
                     messagePostProcessor.getMessageProperties().setHeader("operationID", operationID);
                     return messagePostProcessor;
@@ -70,7 +70,7 @@ public class QueueSender {
         taskMessage.setClientID(clientId);
         taskMessage.setOperationID(operationID);
         taskMessage.setOperationIndex(0);
-        taskMessage.setOperationType(OPERATION_TYPE.PARSE_OBJECTS);
+        taskMessage.setOperationType(OperationType.PARSE_OBJECTS);
         taskMessage.setContent(parseFileCommandDto);
 
         try {
