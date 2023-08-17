@@ -1,7 +1,9 @@
 import math
 
-from .conversion import parse_scene_generation_data_from_dict, convert_mesh_to_trimesh, SceneGenerationData
+from .conversion import parse_scene_generation_data_from_dict, convert_mesh_to_trimesh, SceneGenerationData,\
+    convert_mesh_to_vertex_list
 from .domain import SceneData, SceneModelsCoords, Transform3, Transform4, Model, GrabPoint
+from .simulation import simulate_physics
 import numpy as np
 import trimesh
 import poisson_disc as pd
@@ -71,7 +73,6 @@ def generate_positions_random(instr: SceneGenerationData, mesh: trimesh, org_tra
 
 def generate_positions_poisson(max_model_bounds: float, number_of_objects: int, area_bounds: dict,
                                orig_trans: dict):
-    # pd.np.random.seed(0) # TODO solve seed
     p_transforms = pd.Bridson_sampling(np.array([area_bounds["width"], area_bounds["depth"], area_bounds["height"]]),
                                        radius=max_model_bounds, k=1000)
 
@@ -160,6 +161,11 @@ def generate_scene_transforms(instr: SceneGenerationData) -> dict:
                                                                           {"translation": original_translation,
                                                                            "rotation": org_rot_matrix,
                                                                            "scale": scale}, min_radius)
+
+    vertices = convert_mesh_to_vertex_list(instr.model.mesh)
+
+    if instr.scene_definition.use_simulation:
+        model_transforms = simulate_physics(vertices, model_transforms, 500)
 
     grab_point_transforms: list[SceneModelsCoords] = []
     for model_transform in model_transforms:

@@ -22,14 +22,18 @@ def parse_scene_generation_data_from_dict(source: dict) -> SceneGenerationData:
     return SceneGenerationData(scene_definition=scene_definition, model=model, grab_points=grab_points)
 
 
-def convert_mesh_to_trimesh(source: m_c.ModelMesh):
-    # convert vertices to arrays
+def convert_mesh_to_vertex_list(source: m_c.ModelMesh):
     vertices = []
 
     for vertex in source.vertices:
         vertices.append([vertex.position.x, vertex.position.y, vertex.position.z])
 
-    # make a list of faces list
+    return vertices
+
+
+def convert_mesh_to_trimesh(source: m_c.ModelMesh):
+    vertices = convert_mesh_to_vertex_list(source)
+
     faces = []
 
     for face in source.faces:
