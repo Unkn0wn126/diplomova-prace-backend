@@ -45,13 +45,12 @@ services:
       - QUEUES_SCENE-GENERATION_REQUEST=sceneGenerationRequest
       - QUEUES_SCENE-GENERATION_RESPONSE=sceneGenerationResponse
       - QUEUES_EXCHANGE=artificial-generation-exchange
-    restart: always # TODO: change it so it's not needed
+    restart: always
     depends_on:
       - rabbitmq3
     volumes:
       - ./ArtificialGenerationWorkers/:/app
   rabbitmq3:
-    # see https://www.section.io/engineering-education/dockerize-a-rabbitmq-instance/
     container_name: "artificial-generation-rabbitmq"
     image: rabbitmq:3.8-management-alpine
     environment:

@@ -2,11 +2,10 @@ package cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.con
 
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.dto.GenerateScenesCommandDto;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.dto.TaskCreatedResponseDto;
-import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.services.ActiveEndpointsService;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.services.TempFileService;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.common.domain.ClientInfo;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.common.services.ActiveClientsService;
-import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.queueing.services.QueueSender;
+import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.queueing.services.QueueSenderService;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.sockets.services.SocketService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +27,7 @@ public class ScenesController {
     private static final Logger logger = LoggerFactory.getLogger(ScenesController.class);
 
     @Autowired
-    private QueueSender sender;
+    private QueueSenderService sender;
 
     @Autowired
     private TempFileService tempFileService;

@@ -16,18 +16,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 @Service
-public class QueueReceiver implements ApplicationContextAware {
-    private static final Logger logger = LoggerFactory.getLogger(QueueReceiver.class);
+public class QueueReceiverService {
+    private static final Logger logger = LoggerFactory.getLogger(QueueReceiverService.class);
 
     @Autowired
     private SocketIOServer server;
@@ -40,8 +37,6 @@ public class QueueReceiver implements ApplicationContextAware {
 
     @Autowired
     private SocketService socketService;
-
-    private ApplicationContext applicationContext;
 
     @RabbitListener(queues = "${queues.model-parsing.response}")
     public void receiveParseModelResultMessage(Message message) {
@@ -124,11 +119,6 @@ public class QueueReceiver implements ApplicationContextAware {
                 logger.error("Could not send response to client, as it was null");
             }
         }
-    }
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
     }
 
     private ReceivedMessageHelper extractMessageData(Message message) {

@@ -14,7 +14,7 @@ import java.io.IOException;
 
 @ControllerAdvice
 public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
-    private static Logger logger = LoggerFactory.getLogger(ControllerExceptionHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(ControllerExceptionHandler.class);
 
     @ExceptionHandler(value = {IOException.class})
     protected ResponseEntity<Object> handleIOException(IOException ex, WebRequest request) {

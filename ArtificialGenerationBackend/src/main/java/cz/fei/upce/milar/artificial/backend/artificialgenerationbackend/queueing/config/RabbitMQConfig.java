@@ -12,8 +12,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class RabbitMqConfig {
-    // see (same up to the Binding): https://spring.io/guides/gs/messaging-rabbitmq/
+public class RabbitMQConfig {
     @Value("${queues.exchange}")
     private String topicExchangeName;
     @Value("${queues.model-parsing.request}")
@@ -26,12 +25,8 @@ public class RabbitMqConfig {
     @Value("${queues.scene-generation.response}")
     private String sceneGenerationResponseQueueName;
 
-    @Value("${spring.rabbitmq.host}")
-    private String rabbitHost;
-
     @Bean
     Queue modelParsingRequestQueue() {
-        System.out.println(rabbitHost);
         return new Queue(modelParsingRequestQueueName, false);
     }
 

@@ -6,6 +6,7 @@ import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.util
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.queueing.domain.GenerateScenesTaskRequestMessage;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.queueing.domain.OperationType;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.queueing.domain.ParseModelTaskRequestMessage;
+import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.sockets.services.SocketService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.AmqpException;
@@ -19,9 +20,8 @@ import org.springframework.stereotype.Service;
 import java.util.UUID;
 
 @Service
-public class QueueSender {
-    private static Logger logger = LoggerFactory.getLogger(QueueSender.class);
-    // based on this (but not much really): https://www.rabbitmq.com/tutorials/tutorial-one-spring-amqp.html
+public class QueueSenderService {
+    private static final Logger logger = LoggerFactory.getLogger(QueueSenderService.class);
 
     @Autowired
     private RabbitTemplate template;
@@ -36,6 +36,9 @@ public class QueueSender {
     @Autowired
     @Qualifier("sceneGenerationRequestQueue")
     private Queue sceneGenerationRequestQueue;
+
+    @Autowired
+    private SocketService socketService;
 
     public void sendGenerateScenesCommand(UUID clientId, UUID operationID,
                                           GenerateScenesCommandDto generateScenesCommandDto) {
@@ -60,7 +63,7 @@ public class QueueSender {
                 });
             } catch (AmqpException e) {
                 logger.error(e.getMessage());
-                // TODO inform client
+                socketService.sendLogToClient(clientId, "Error occured while queueing operation");
             }
         }
     }
@@ -78,7 +81,7 @@ public class QueueSender {
             this.template.convertAndSend(modelParsingRequestQueue.getName(), taskMessage);
         } catch (AmqpException e) {
             logger.error(e.getMessage());
-            // TODO inform client
+            socketService.sendLogToClient(clientId, "Error occured while queueing operation");
         }
     }
 }

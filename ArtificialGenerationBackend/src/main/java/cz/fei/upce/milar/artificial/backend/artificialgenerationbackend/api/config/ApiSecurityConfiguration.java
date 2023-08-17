@@ -30,8 +30,6 @@ public class ApiSecurityConfiguration {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        // based on: https://docs.spring.io/spring-security/reference/servlet/architecture.html#servlet-securityfilterchain
-
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(
                         authorize -> authorize.requestMatchers("/api/v1/hello**").permitAll()

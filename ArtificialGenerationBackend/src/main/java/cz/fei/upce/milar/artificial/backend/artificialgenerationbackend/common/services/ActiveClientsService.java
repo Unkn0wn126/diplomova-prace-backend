@@ -12,8 +12,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class ActiveClientsService {
-    private static Logger logger = LoggerFactory.getLogger(ActiveClientsService.class);
-    private Map<UUID, ClientInfo> activeClients;
+    private static final Logger logger = LoggerFactory.getLogger(ActiveClientsService.class);
+    private final Map<UUID, ClientInfo> activeClients;
 
     public ActiveClientsService() {
         activeClients = new ConcurrentHashMap<>();
