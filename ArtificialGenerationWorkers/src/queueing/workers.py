@@ -2,9 +2,7 @@ import base64
 import dataclasses
 
 import json
-import os
 import pika
-import sys
 import tempfile
 
 import src.models.parsing as model_parsing
@@ -32,7 +30,6 @@ def launch_model_parsing(config: RabbitConfig, request_queue: str, response_queu
     channel2.queue_declare(queue=response_queue)
 
     def callback(ch, method, properties, body):
-        print("Got message!")
         parsed = body.decode('utf8')
         loaded = json.loads(parsed)
         client_id = loaded.get('clientID')
@@ -79,7 +76,6 @@ def launch_model_parsing(config: RabbitConfig, request_queue: str, response_queu
                           auto_ack=True,
                           on_message_callback=callback)
 
-    print(' [*] Waiting for model parsing request messages. To exit press CTRL+C')
     channel.start_consuming()
 
 
@@ -99,7 +95,6 @@ def launch_scene_generation(config: RabbitConfig, request_queue: str, response_q
     channel2.queue_declare(queue=response_queue)
 
     def callback(ch, method, properties, body):
-        print("Got message!")
         parsed = body.decode('utf8')
         loaded = json.loads(parsed)
         client_id = loaded.get('clientID')
@@ -140,16 +135,4 @@ def launch_scene_generation(config: RabbitConfig, request_queue: str, response_q
                           auto_ack=True,
                           on_message_callback=callback)
 
-    print(' [*] Waiting for scene generation request messages. To exit press CTRL+C')
     channel.start_consuming()
-
-
-if __name__ == '__main__':
-    try:
-        launch_model_parsing()
-    except KeyboardInterrupt:
-        print('Interrupted')
-        try:
-            sys.exit(0)
-        except SystemExit:
-            os._exit(0)

@@ -13,5 +13,3 @@ COPY ./src /app/src
 ENV PYTHONPATH "${PYTHONPATH}:/app"
 
 ENTRYPOINT ["python", "/app/src/artificial_generation.py"]
-
-#CMD ["python", "/app/src/artificial_generation.py"]

@@ -7,10 +7,6 @@ process_flags = (
 
 
 def import_model_from_file(file_name: str) -> models.Model:
-    """
-
-    :rtype: models.Model
-    """
     scene = assimp_py.ImportFile(file_name, process_flags)
     meshes: list[models.ModelMesh] = []
 

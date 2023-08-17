@@ -21,40 +21,51 @@ def convert_matrix_to_scene_models_coords(res_tran: Matrix44):
                              scale=Transform3(x=scale[0], y=scale[1], z=scale[2]))
 
 
-def generate_position_random(mesh: trimesh, col_manager: trimesh.collision.CollisionManager,
-                             bounds: dict, org_transforms: dict):
+def generate_position_random(rng, mesh: trimesh, col_manager: trimesh.collision.CollisionManager,
+                             bounds: dict, org_transforms: dict) -> dict:
     result_transform: Matrix44
+    trimesh_transform: np.ndarray
+    was_success: bool
     max_tries = 100
     counter = 1
     while True:
-        rnd_x = np.random.random_sample() * bounds["width"]
-        rnd_y = np.random.random_sample() * bounds["depth"]
-        rnd_z = np.random.random_sample() * bounds["height"]
+        rnd_x = rng.uniform(low=0, high=bounds["width"], size=1)[0]
+        rnd_y = rng.uniform(low=0, high=bounds["depth"], size=1)[0]
+        rnd_z = rng.uniform(low=0, high=bounds["height"], size=1)[0]
 
         random_rot = trimesh.transformations.random_rotation_matrix()
 
         random_pos = Matrix44.from_translation(Vector3([rnd_x, rnd_y, rnd_z]))
+        trimesh_pos = trimesh.transformations.translation_matrix([rnd_x, rnd_y, rnd_z])
 
         result_transform = org_transforms["translation"] * random_pos * org_transforms["rotation"] * random_rot * org_transforms["scale"]
 
-        if not col_manager.in_collision_single(mesh, result_transform) or counter >= max_tries:
+        trimesh_transform = trimesh.transformations.concatenate_matrices(trimesh_pos, random_rot)
+
+        if not col_manager.in_collision_single(mesh, trimesh_transform):
+            was_success = True
+            break
+        elif counter >= max_tries:
+            was_success = False
             break
         counter += 1
 
-    return result_transform
+    return {"resultTransform": result_transform, "trimeshTransform": trimesh_transform} if was_success else None
 
 
 def generate_positions_random(instr: SceneGenerationData, mesh: trimesh, org_transforms: dict, max_bounds: float):
     model_transforms = []
     col_manager = trimesh.collision.CollisionManager()
+    rng = np.random.default_rng()
     for i in range(instr.scene_definition.number_of_objects):
-        res_tran: Matrix44 = generate_position_random(mesh, col_manager, {
+        res_tran: dict = generate_position_random(rng, mesh, col_manager, {
             "width": instr.scene_definition.width,
             "depth": instr.scene_definition.number_of_vertical_layers * max_bounds,
             "height": instr.scene_definition.height}, org_transforms)
 
-        col_manager.add_object(f"{i}", mesh, transform=res_tran)
-        model_transforms.append(convert_matrix_to_scene_models_coords(res_tran))
+        if res_tran is not None:
+            col_manager.add_object(f"{i}", mesh, transform=res_tran["trimeshTransform"])
+            model_transforms.append(convert_matrix_to_scene_models_coords(res_tran["resultTransform"]))
 
     return model_transforms
 

@@ -1,5 +1,4 @@
 import os
-import logging
 
 from queueing import workers, config
 from multiprocessing import Process, cpu_count
@@ -44,8 +43,8 @@ if __name__ == '__main__':
     scn_request_queue = os.getenv("QUEUES_SCENE-GENERATION_REQUEST")
     scn_response_queue = os.getenv("QUEUES_SCENE-GENERATION_RESPONSE")
 
-    logging.info(f"Launching {scene_generation_workers_count} workers for scene generation")
-    logging.info(f"Launching {model_parsing_workers_count} workers for parsing of models")
+    print(f"Launching {scene_generation_workers_count} workers for scene generation")
+    print(f"Launching {model_parsing_workers_count} workers for parsing of models")
 
     launch_workers(model_parsing_workers_count, scene_generation_workers_count, model_request_queue,
                    model_response_queue, scn_request_queue, scn_response_queue)
