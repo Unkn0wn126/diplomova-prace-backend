@@ -4,9 +4,8 @@ from .conversion import parse_scene_generation_data_from_dict, convert_mesh_to_t
 from .domain import SceneData, SceneModelsCoords, Transform3, Transform4, Model, GrabPoint
 import numpy as np
 import trimesh
-from scipy.spatial.transform import Rotation as R
 import poisson_disc as pd
-from pyrr import Quaternion, Vector3, Matrix44
+from pyrr import Vector3, Matrix44
 
 
 def convert_matrix_to_scene_models_coords(res_tran: Matrix44):
@@ -22,7 +21,7 @@ def convert_matrix_to_scene_models_coords(res_tran: Matrix44):
 
 
 def generate_position_random(rng, mesh: trimesh, col_manager: trimesh.collision.CollisionManager,
-                             bounds: dict, org_transforms: dict) -> dict:
+                             bounds: dict, org_transforms: dict) -> Matrix44:
     result_transform: Matrix44
     trimesh_transform: np.ndarray
     was_success: bool
@@ -33,16 +32,16 @@ def generate_position_random(rng, mesh: trimesh, col_manager: trimesh.collision.
         rnd_y = rng.uniform(low=0, high=bounds["depth"], size=1)[0]
         rnd_z = rng.uniform(low=0, high=bounds["height"], size=1)[0]
 
-        random_rot = trimesh.transformations.random_rotation_matrix()
-
+        random_rot = np.transpose(trimesh.transformations.random_rotation_matrix())
         random_pos = Matrix44.from_translation(Vector3([rnd_x, rnd_y, rnd_z]))
-        trimesh_pos = trimesh.transformations.translation_matrix([rnd_x, rnd_y, rnd_z])
 
-        result_transform = org_transforms["translation"] * random_pos * org_transforms["rotation"] * random_rot * org_transforms["scale"]
+        tran_matrix = org_transforms["translation"] * random_pos
+        rot_matrix = org_transforms["rotation"] * random_rot
+        scale_matrix = org_transforms["scale"]
 
-        trimesh_transform = trimesh.transformations.concatenate_matrices(trimesh_pos, random_rot)
+        result_transform = tran_matrix * rot_matrix * scale_matrix
 
-        if not col_manager.in_collision_single(mesh, trimesh_transform):
+        if not col_manager.in_collision_single(mesh, np.transpose(result_transform)):
             was_success = True
             break
         elif counter >= max_tries:
@@ -50,7 +49,7 @@ def generate_position_random(rng, mesh: trimesh, col_manager: trimesh.collision.
             break
         counter += 1
 
-    return {"resultTransform": result_transform, "trimeshTransform": trimesh_transform} if was_success else None
+    return result_transform if was_success else None
 
 
 def generate_positions_random(instr: SceneGenerationData, mesh: trimesh, org_transforms: dict, max_bounds: float):
@@ -58,14 +57,14 @@ def generate_positions_random(instr: SceneGenerationData, mesh: trimesh, org_tra
     col_manager = trimesh.collision.CollisionManager()
     rng = np.random.default_rng()
     for i in range(instr.scene_definition.number_of_objects):
-        res_tran: dict = generate_position_random(rng, mesh, col_manager, {
+        res_tran: Matrix44 = generate_position_random(rng, mesh, col_manager, {
             "width": instr.scene_definition.width,
             "depth": instr.scene_definition.number_of_vertical_layers * max_bounds,
             "height": instr.scene_definition.height}, org_transforms)
 
         if res_tran is not None:
-            col_manager.add_object(f"{i}", mesh, transform=res_tran["trimeshTransform"])
-            model_transforms.append(convert_matrix_to_scene_models_coords(res_tran["resultTransform"]))
+            col_manager.add_object(f"{i}", mesh, transform=np.transpose(res_tran))
+            model_transforms.append(convert_matrix_to_scene_models_coords(res_tran))
 
     return model_transforms
 
@@ -74,7 +73,7 @@ def generate_positions_poisson(max_model_bounds: float, number_of_objects: int, 
                                orig_trans: dict):
     # pd.np.random.seed(0) # TODO solve seed
     p_transforms = pd.Bridson_sampling(np.array([area_bounds["width"], area_bounds["depth"], area_bounds["height"]]),
-                                       radius=max_model_bounds, k=100)
+                                       radius=max_model_bounds, k=1000)
 
     np.random.shuffle(p_transforms)
     transform_range = min(number_of_objects, len(p_transforms))
@@ -82,10 +81,15 @@ def generate_positions_poisson(max_model_bounds: float, number_of_objects: int, 
     mod_trans = []
 
     for i in range(transform_range):
-        rand_rot = trimesh.transformations.random_rotation_matrix()
-        rand_pos = Matrix44.from_translation(Vector3([p_transforms[i][0], p_transforms[i][1], p_transforms[i][2]]))
+        rand_rot = np.transpose(trimesh.transformations.random_rotation_matrix())
+        rot_matrix = orig_trans["rotation"] * rand_rot
 
-        res_tran = orig_trans["translation"] * rand_pos * orig_trans["rotation"] * rand_rot * orig_trans["scale"]
+        rand_pos = Matrix44.from_translation(Vector3([p_transforms[i][0], p_transforms[i][1], p_transforms[i][2]]))
+        tran_matrix = orig_trans["translation"] * rand_pos
+
+        scale_matrix = orig_trans["scale"]
+
+        res_tran = tran_matrix * rot_matrix * scale_matrix
 
         mod_trans.append(convert_matrix_to_scene_models_coords(res_tran))
 
@@ -93,9 +97,8 @@ def generate_positions_poisson(max_model_bounds: float, number_of_objects: int, 
 
 
 def get_rotation_matrix(rot_transform: Transform4):
-    original_rotation = R.from_quat([rot_transform.x, rot_transform.y, rot_transform.z, rot_transform.w])
-    quat = original_rotation.as_quat(canonical=False)
-    quat_matrix = trimesh.transformations.quaternion_matrix(quat)
+    quaternion = np.array([rot_transform.x, rot_transform.y, rot_transform.z, rot_transform.w])
+    quat_matrix = Matrix44.from_quaternion(quaternion)
 
     return quat_matrix
 
@@ -150,10 +153,13 @@ def generate_scene_transforms(instr: SceneGenerationData) -> dict:
     org_rot_matrix = get_rotation_matrix(model.rotation)
     scale = Matrix44.from_scale([model.scale.x, model.scale.y, model.scale.z])
 
-    max_bounds = np.amax(mesh.bounds) * 2
+    bounds_diagonal = np.linalg.norm(mesh.bounds[0])
+    min_radius = bounds_diagonal + (bounds_diagonal / 2)
 
-    model_transforms: list[SceneModelsCoords] = generate_model_transforms(instr, mesh, {"translation": original_translation,
-                                                               "rotation": org_rot_matrix, "scale": scale}, max_bounds)
+    model_transforms: list[SceneModelsCoords] = generate_model_transforms(instr, mesh,
+                                                                          {"translation": original_translation,
+                                                                           "rotation": org_rot_matrix,
+                                                                           "scale": scale}, min_radius)
 
     grab_point_transforms: list[SceneModelsCoords] = []
     for model_transform in model_transforms:
