@@ -165,7 +165,7 @@ def generate_scene_transforms(instr: SceneGenerationData) -> dict:
     vertices = convert_mesh_to_vertex_list(instr.model.mesh)
 
     if instr.scene_definition.use_simulation:
-        model_transforms = simulate_physics(vertices, model_transforms, 500)
+        model_transforms = simulate_physics(vertices, model_transforms, 500, 0.01)
 
     grab_point_transforms: list[SceneModelsCoords] = []
     for model_transform in model_transforms:
