@@ -11,16 +11,14 @@ from .config import RabbitConfig
 from .constants import OPERATION_RESULT_SUCCESS, OPERATION_RESULT_ERROR
 
 
-# basic skeleton taken from: https://www.rabbitmq.com/tutorials/tutorial-one-python.html
-
-
 def launch_model_parsing(config: RabbitConfig, request_queue: str, response_queue: str):
     connection = pika.BlockingConnection(pika.ConnectionParameters(host=config.host,
                                                                    port=config.port,
                                                                    credentials=pika.credentials
                                                                    .PlainCredentials(
                                                                        username=config.user_name,
-                                                                       password=config.password)))
+                                                                       password=config.password),
+                                                                   heartbeat=0))
     channel = connection.channel()
 
     channel.queue_declare(queue=request_queue)
@@ -76,7 +74,10 @@ def launch_model_parsing(config: RabbitConfig, request_queue: str, response_queu
                           auto_ack=True,
                           on_message_callback=callback)
 
-    channel.start_consuming()
+    try:
+        channel.start_consuming()
+    finally:
+        channel.stop_consuming()
 
 
 def launch_scene_generation(config: RabbitConfig, request_queue: str, response_queue: str):
@@ -85,7 +86,8 @@ def launch_scene_generation(config: RabbitConfig, request_queue: str, response_q
                                                                    credentials=pika.credentials
                                                                    .PlainCredentials(
                                                                        username=config.user_name,
-                                                                       password=config.password)))
+                                                                       password=config.password),
+                                                                   heartbeat=0))
     channel = connection.channel()
 
     channel.queue_declare(queue=request_queue)
@@ -134,5 +136,7 @@ def launch_scene_generation(config: RabbitConfig, request_queue: str, response_q
     channel.basic_consume(queue=request_queue,
                           auto_ack=True,
                           on_message_callback=callback)
-
-    channel.start_consuming()
+    try:
+        channel.start_consuming()
+    finally:
+        channel.stop_consuming()
