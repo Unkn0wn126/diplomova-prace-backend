@@ -1,7 +1,6 @@
 package cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.common.domain;
 
 import java.nio.file.Path;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;

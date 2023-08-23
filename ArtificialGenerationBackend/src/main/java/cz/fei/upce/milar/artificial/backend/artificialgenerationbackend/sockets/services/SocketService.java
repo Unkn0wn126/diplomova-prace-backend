@@ -2,7 +2,6 @@ package cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.sockets
 
 import com.corundumstudio.socketio.SocketIOServer;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.sockets.dto.AfterConnectResponseDto;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.sockets.dto.OperationFinishedResponseDto;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.sockets.util.SocketEventTypes;
 import org.slf4j.Logger;
@@ -14,7 +13,7 @@ import java.util.UUID;
 
 @Service
 public class SocketService {
-    private Logger logger = LoggerFactory.getLogger(SocketService.class);
+    private final Logger logger = LoggerFactory.getLogger(SocketService.class);
 
     @Autowired
     private SocketIOServer server;

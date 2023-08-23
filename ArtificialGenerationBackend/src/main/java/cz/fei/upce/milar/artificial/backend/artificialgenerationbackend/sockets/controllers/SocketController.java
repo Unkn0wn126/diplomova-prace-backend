@@ -9,7 +9,6 @@ import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.serv
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.common.domain.ClientInfo;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.common.services.ActiveClientsService;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.sockets.dto.AfterConnectResponseDto;
-import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.sockets.services.SocketService;
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.sockets.util.SocketEventTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,21 +17,18 @@ import org.springframework.stereotype.Component;
 @Component
 public class SocketController {
     private static final Logger logger = LoggerFactory.getLogger(SocketController.class);
-    /// based on: https://medium.com/folksdev/spring-boot-netty-socket-io-example-3f21fcc1147d
     private final ActiveClientsService activeClientsService;
 
     private final ActiveEndpointsService activeEndpointsService;
     private final SocketIOServer server;
-    private final SocketService socketService;
 
-    public SocketController(SocketIOServer server, SocketService socketService,
+    public SocketController(SocketIOServer server,
                             ActiveClientsService activeClientsService, ActiveEndpointsService activeEndpointsService) {
         this.server = server;
-        this.socketService = socketService;
         this.activeClientsService = activeClientsService;
         this.activeEndpointsService = activeEndpointsService;
-        server.addConnectListener(onConnected());
-        server.addDisconnectListener(onDisconnected());
+        this.server.addConnectListener(onConnected());
+        this.server.addDisconnectListener(onDisconnected());
     }
 
     private ConnectListener onConnected() {

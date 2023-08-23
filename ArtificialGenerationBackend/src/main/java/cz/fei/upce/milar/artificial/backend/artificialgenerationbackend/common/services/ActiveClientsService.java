@@ -1,6 +1,7 @@
 package cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.common.services;
 
 import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.common.domain.ClientInfo;
+import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.common.domain.OperationInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -55,12 +56,12 @@ public class ActiveClientsService {
         activeClients.get(clientID).addOperationToClient(operationID, resultsSize);
     }
 
-    public void removeClientOperation(UUID clientID, UUID operationID) {
+    public OperationInfo removeClientOperation(UUID clientID, UUID operationID) {
         if (!activeClients.containsKey(clientID)) {
             throw new RuntimeException("No such client");
         }
 
-        activeClients.get(clientID).removeOperationFromClient(operationID);
+        return activeClients.get(clientID).removeOperationFromClient(operationID);
     }
 
     public void addResultPathToOperation(UUID clientID, UUID operationID, Path path, int index) {
