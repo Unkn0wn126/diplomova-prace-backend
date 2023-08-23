@@ -1,10 +1,8 @@
 package cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.api.dto;
 
-import cz.fei.upce.milar.artificial.backend.artificialgenerationbackend.common.dto.DtoAncestor;
-
 import java.util.Base64;
 
-public class ParseFileCommandDto extends DtoAncestor {
+public class ParseFileCommandDto {
     private String fileData;
     private String fileSuffix;
 

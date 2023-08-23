@@ -64,7 +64,7 @@ public class ScenesController {
                                                               @RequestParam("index") int operationIndex)
             throws FileNotFoundException {
         logger.info("Fetching result of scene generation for operation with id {}", operationId);
-        // TODO
+
         Path tempFile = tempFileService.getOperationPathAtIndex(id, operationId, operationIndex);
 
         if (tempFile == null) {
